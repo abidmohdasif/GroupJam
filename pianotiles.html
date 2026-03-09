@@ -24,761 +24,706 @@
       --mono:      'Share Tech Mono', monospace;
       --display:   'Bebas Neue', sans-serif;
     }
-    html, body {
-      height: 100%; width: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--mono);
-      overflow: hidden;
-      user-select: none;
-    }
-    body::after {
-      content: '';
-      position: fixed; inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.18) 2px, rgba(0,0,0,.18) 4px);
-      pointer-events: none;
-      z-index: 999;
-    }
-    .screen {
-      position: fixed; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 100;
-      transition: opacity .4s;
-    }
-    .screen.hidden { opacity: 0; pointer-events: none; }
-    #startScreen { background: radial-gradient(ellipse at 50% 40%, #0e0e22 0%, #05050a 70%); }
-    .logo {
-      font-family: var(--display);
-      font-size: clamp(4rem, 12vw, 9rem);
-      letter-spacing: .12em;
-      color: var(--accent);
-      text-shadow: 0 0 20px var(--accent), 0 0 60px rgba(42,245,184,.4), 0 0 120px rgba(42,245,184,.2);
-      animation: pulse 2.4s ease-in-out infinite;
-      line-height: 1;
-    }
-    .subtitle {
-      font-size: .85rem; letter-spacing: .35em;
-      color: rgba(255,255,255,.45); text-transform: uppercase;
-      margin-top: .6rem; margin-bottom: 2rem;
-    }
+    html, body { height:100%; width:100%; background:var(--bg); color:var(--text); font-family:var(--mono); overflow:hidden; user-select:none; }
+    body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.18) 2px,rgba(0,0,0,.18) 4px); pointer-events:none; z-index:999; }
 
-    /* ── Arcade back link ── */
-    .arcade-back {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-family: var(--display); font-size: 1rem; letter-spacing: .2em;
-      color: rgba(255,255,255,.3); text-decoration: none;
-      border: 1px solid rgba(255,255,255,.1); border-radius: 3px;
-      padding: .35rem 1rem; margin-bottom: 1.8rem;
-      transition: all .2s;
-    }
-    .arcade-back:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px rgba(42,245,184,.2); }
+    /* ── Screens ── */
+    .screen { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; transition:opacity .4s; }
+    .screen.hidden { opacity:0; pointer-events:none; }
+    #startScreen { background:radial-gradient(ellipse at 50% 40%, #0e0e22 0%, #05050a 70%); }
 
-    .key-legend { display: flex; gap: 1.2rem; margin-bottom: 2.4rem; }
-    .key-box { display: flex; flex-direction: column; align-items: center; gap: .4rem; }
-    .key-cap {
-      width: 52px; height: 52px; border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--display); font-size: 1.6rem; letter-spacing: .05em;
-      border: 2px solid; transition: transform .15s;
-    }
-    .key-cap.d { color: var(--note-d); border-color: var(--note-d); box-shadow: 0 0 12px var(--note-d); }
-    .key-cap.f { color: var(--note-f); border-color: var(--note-f); box-shadow: 0 0 12px var(--note-f); }
-    .key-cap.j { color: var(--note-j); border-color: var(--note-j); box-shadow: 0 0 12px var(--note-j); }
-    .key-cap.k { color: var(--note-k); border-color: var(--note-k); box-shadow: 0 0 12px var(--note-k); }
-    .key-label { font-size: .6rem; letter-spacing: .2em; opacity: .5; }
-    .btn {
-      font-family: var(--display); font-size: 1.6rem; letter-spacing: .2em;
-      padding: .7rem 3rem; background: transparent;
-      border: 2px solid var(--accent); color: var(--accent);
-      cursor: pointer; border-radius: 4px; text-transform: uppercase;
-      transition: all .2s; box-shadow: 0 0 18px rgba(42,245,184,.25);
-    }
-    .btn:hover { background: var(--accent); color: #05050a; box-shadow: 0 0 36px rgba(42,245,184,.6); }
-    .hint { margin-top: 1.2rem; font-size: .7rem; letter-spacing: .15em; opacity: .35; }
+    .logo { font-family:var(--display); font-size:clamp(4rem,12vw,9rem); letter-spacing:.12em; color:var(--accent); text-shadow:0 0 20px var(--accent),0 0 60px rgba(42,245,184,.4),0 0 120px rgba(42,245,184,.2); animation:pulse 2.4s ease-in-out infinite; line-height:1; }
+    .subtitle { font-size:.85rem; letter-spacing:.35em; color:rgba(255,255,255,.45); text-transform:uppercase; margin-top:.6rem; margin-bottom:2rem; }
 
-    /* ── Game Over Screen ── */
-    #gameOverScreen { background: rgba(5,5,10,.92); gap: 0; }
-    .over-title {
-      font-family: var(--display); font-size: clamp(3rem, 8vw, 6rem);
-      color: var(--accent2); text-shadow: 0 0 30px var(--accent2); letter-spacing: .15em;
-    }
-    .over-stats { margin: 1.6rem 0 1.4rem; text-align: center; line-height: 2; font-size: .9rem; opacity: .8; }
-    .over-stats span { color: var(--accent); font-size: 1.2rem; }
+    .arcade-back { display:inline-flex; align-items:center; gap:8px; font-family:var(--display); font-size:1rem; letter-spacing:.2em; color:rgba(255,255,255,.3); text-decoration:none; border:1px solid rgba(255,255,255,.1); border-radius:3px; padding:.35rem 1rem; margin-bottom:1.8rem; transition:all .2s; }
+    .arcade-back:hover { color:var(--accent); border-color:var(--accent); box-shadow:0 0 12px rgba(42,245,184,.2); }
 
-    /* ── Unlock badge shown on game over when combo reached ── */
-    .unlock-badge {
-      display: none;
-      background: linear-gradient(135deg, rgba(57,255,20,0.15), rgba(0,245,255,0.1));
-      border: 1.5px solid #39ff14;
-      border-radius: 4px;
-      padding: .7rem 1.8rem;
-      margin-bottom: 1.6rem;
-      text-align: center;
-      font-family: var(--display);
-      font-size: 1.1rem;
-      letter-spacing: .15em;
-      color: #39ff14;
-      text-shadow: 0 0 12px #39ff14;
-      box-shadow: 0 0 24px rgba(57,255,20,.2);
-      animation: badgePulse 1.5s ease-in-out infinite;
-    }
-    .unlock-badge.visible { display: block; }
-    @keyframes badgePulse {
-      0%,100% { box-shadow: 0 0 24px rgba(57,255,20,.2); }
-      50%      { box-shadow: 0 0 40px rgba(57,255,20,.5); }
-    }
+    .key-legend { display:flex; gap:1.2rem; margin-bottom:2.4rem; }
+    .key-box { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+    .key-cap { width:52px; height:52px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:1.6rem; border:2px solid; }
+    .key-cap.d { color:var(--note-d); border-color:var(--note-d); box-shadow:0 0 12px var(--note-d); }
+    .key-cap.f { color:var(--note-f); border-color:var(--note-f); box-shadow:0 0 12px var(--note-f); }
+    .key-cap.j { color:var(--note-j); border-color:var(--note-j); box-shadow:0 0 12px var(--note-j); }
+    .key-cap.k { color:var(--note-k); border-color:var(--note-k); box-shadow:0 0 12px var(--note-k); }
+    .key-label { font-size:.6rem; letter-spacing:.2em; opacity:.5; }
 
-    .btn-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: center; }
-    .btn-arcade {
-      font-family: var(--display); font-size: 1.3rem; letter-spacing: .15em;
-      padding: .6rem 2rem; background: transparent;
-      border: 2px solid rgba(255,255,255,.2); color: rgba(255,255,255,.4);
-      cursor: pointer; border-radius: 4px;
-      transition: all .2s;
-    }
-    .btn-arcade:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 18px rgba(42,245,184,.3); }
-    .btn-arcade.highlighted { border-color: #39ff14; color: #39ff14; box-shadow: 0 0 20px rgba(57,255,20,.3); }
-    .btn-arcade.highlighted:hover { box-shadow: 0 0 36px rgba(57,255,20,.6); }
+    .btn { font-family:var(--display); font-size:1.6rem; letter-spacing:.2em; padding:.7rem 3rem; background:transparent; border:2px solid var(--accent); color:var(--accent); cursor:pointer; border-radius:4px; transition:all .2s; box-shadow:0 0 18px rgba(42,245,184,.25); }
+    .btn:hover { background:var(--accent); color:#05050a; box-shadow:0 0 36px rgba(42,245,184,.6); }
+    .hint { margin-top:1.2rem; font-size:.7rem; letter-spacing:.15em; opacity:.35; }
 
-    /* ── Game area ── */
-    #gameWrap { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; }
-    #hud {
-      width: 100%; max-width: 520px;
-      display: flex; justify-content: space-between; align-items: flex-end;
-      padding: .8rem 1rem .4rem; z-index: 10;
-    }
-    .hud-block { display: flex; flex-direction: column; }
-    .hud-label { font-size: .58rem; letter-spacing: .3em; opacity: .4; text-transform: uppercase; }
-    .hud-value { font-family: var(--display); font-size: 2.2rem; letter-spacing: .06em; line-height: 1; transition: color .15s; }
-    #scoreVal  { color: var(--accent); }
-    #streakVal { color: var(--accent3); }
-    #multVal   { font-size: 1rem; opacity: .7; color: var(--accent3); }
+    /* ── Game Over ── */
+    #gameOverScreen { background:rgba(5,5,10,.92); gap:0; }
+    .over-title { font-family:var(--display); font-size:clamp(3rem,8vw,6rem); color:var(--accent2); text-shadow:0 0 30px var(--accent2); letter-spacing:.15em; }
+    .over-stats { margin:1.6rem 0 1.4rem; text-align:center; line-height:2; font-size:.9rem; opacity:.8; }
+    .over-stats span { color:var(--accent); font-size:1.2rem; }
+    .unlock-badge { display:none; background:linear-gradient(135deg,rgba(57,255,20,0.15),rgba(0,245,255,0.1)); border:1.5px solid #39ff14; border-radius:4px; padding:.7rem 1.8rem; margin-bottom:1.6rem; text-align:center; font-family:var(--display); font-size:1.1rem; letter-spacing:.15em; color:#39ff14; text-shadow:0 0 12px #39ff14; animation:badgePulse 1.5s ease-in-out infinite; }
+    .unlock-badge.visible { display:block; }
+    @keyframes badgePulse { 0%,100%{box-shadow:0 0 24px rgba(57,255,20,.2);}50%{box-shadow:0 0 40px rgba(57,255,20,.5);} }
+    .btn-row { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; justify-content:center; }
+    .btn-arcade { font-family:var(--display); font-size:1.3rem; letter-spacing:.15em; padding:.6rem 2rem; background:transparent; border:2px solid rgba(255,255,255,.2); color:rgba(255,255,255,.4); cursor:pointer; border-radius:4px; transition:all .2s; }
+    .btn-arcade:hover { border-color:var(--accent); color:var(--accent); }
+    .btn-arcade.highlighted { border-color:#39ff14; color:#39ff14; box-shadow:0 0 20px rgba(57,255,20,.3); }
 
-    /* ── Combo unlock banner (in-game) ── */
-    #comboUnlockBanner {
-      display: none;
-      position: fixed; top: 0; left: 0; right: 0;
-      background: linear-gradient(90deg, rgba(57,255,20,0.18), rgba(0,245,255,0.12), rgba(57,255,20,0.18));
-      border-bottom: 1px solid rgba(57,255,20,0.4);
-      padding: 10px;
-      text-align: center;
-      font-family: var(--display);
-      font-size: 1.1rem;
-      letter-spacing: .2em;
-      color: #39ff14;
-      text-shadow: 0 0 12px #39ff14;
-      z-index: 200;
-      animation: bannerSlide .4s ease-out;
-    }
-    #comboUnlockBanner.show { display: block; }
-    @keyframes bannerSlide {
-      from { transform: translateY(-100%); opacity: 0; }
-      to   { transform: translateY(0);     opacity: 1; }
-    }
+    /* ── In-game HUD ── */
+    #gameWrap { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; }
+    #hud { width:100%; max-width:520px; display:flex; justify-content:space-between; align-items:flex-end; padding:.8rem 1rem .4rem; z-index:10; position:relative; }
+    .hud-block { display:flex; flex-direction:column; }
+    .hud-label { font-size:.58rem; letter-spacing:.3em; opacity:.4; text-transform:uppercase; }
+    .hud-value { font-family:var(--display); font-size:2.2rem; letter-spacing:.06em; line-height:1; }
+    #scoreVal  { color:var(--accent); }
+    #streakVal { color:var(--accent3); }
+    #multVal   { font-size:1rem; opacity:.7; color:var(--accent3); }
 
-    /* ── Streak unlock pop-up modal ── */
-    #streakModal {
-      display: none;
-      position: fixed; inset: 0;
-      z-index: 500;
-      align-items: center; justify-content: center;
-      background: rgba(5,5,10,0.85);
-      backdrop-filter: blur(6px);
-      animation: modalFadeIn .35s ease-out;
+    /* ── Back-to-start button (in-game) ── */
+    #inGameBackBtn {
+      position:absolute; top:50%; right:0; transform:translateY(-50%);
+      font-family:var(--display); font-size:.75rem; letter-spacing:.15em;
+      color:rgba(255,255,255,.22); background:transparent;
+      border:1px solid rgba(255,255,255,.1); border-radius:3px;
+      padding:.3rem .8rem; cursor:pointer; transition:all .2s; z-index:20;
+      white-space:nowrap;
     }
-    #streakModal.show { display: flex; }
-    .modal-box {
-      position: relative;
-      background: linear-gradient(160deg, #0d0d22, #05050a);
-      border: 2px solid #39ff14;
-      border-radius: 10px;
-      padding: 44px 48px 40px;
-      text-align: center;
-      max-width: 420px; width: 90%;
-      box-shadow: 0 0 60px rgba(57,255,20,0.3), 0 0 120px rgba(57,255,20,0.1);
-      animation: modalPop .4s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .modal-icon {
-      font-size: 52px;
-      margin-bottom: 12px;
-      animation: iconSpin .6s ease-out;
-    }
-    .modal-title {
-      font-family: var(--display);
-      font-size: 2.8rem;
-      letter-spacing: .15em;
-      color: #39ff14;
-      text-shadow: 0 0 20px #39ff14, 0 0 40px rgba(57,255,20,0.5);
-      margin-bottom: 6px;
-      line-height: 1.1;
-    }
-    .modal-sub {
-      font-size: .75rem;
-      letter-spacing: .25em;
-      color: rgba(255,255,255,.4);
-      margin-bottom: 24px;
-      text-transform: uppercase;
-    }
-    .modal-stat {
-      display: inline-block;
-      background: rgba(57,255,20,0.08);
-      border: 1px solid rgba(57,255,20,0.25);
-      border-radius: 4px;
-      padding: 8px 20px;
-      margin-bottom: 28px;
-      font-family: var(--display);
-      font-size: 1.3rem;
-      letter-spacing: .1em;
-      color: var(--accent3);
-      text-shadow: 0 0 10px var(--accent3);
-    }
-    .modal-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(57,255,20,0.3), transparent);
-      margin-bottom: 24px;
-    }
-    .modal-question {
-      font-size: .72rem;
-      letter-spacing: .2em;
-      color: rgba(255,255,255,.35);
-      margin-bottom: 16px;
-      text-transform: uppercase;
-    }
-    .modal-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .modal-btn-arcade {
-      font-family: var(--display);
-      font-size: 1.2rem;
-      letter-spacing: .15em;
-      padding: .65rem 1.8rem;
-      background: #39ff14;
-      color: #05050a;
-      border: none; border-radius: 4px; cursor: pointer;
-      box-shadow: 0 0 24px rgba(57,255,20,0.5), 4px 4px 0 rgba(0,0,0,0.4);
-      transition: all .15s;
-    }
-    .modal-btn-arcade:hover {
-      transform: translate(-2px,-2px);
-      box-shadow: 0 0 40px rgba(57,255,20,0.8), 6px 6px 0 rgba(0,0,0,0.4);
-    }
-    .modal-btn-stay {
-      font-family: var(--display);
-      font-size: 1.2rem;
-      letter-spacing: .15em;
-      padding: .65rem 1.8rem;
-      background: transparent;
-      color: rgba(255,255,255,.4);
-      border: 2px solid rgba(255,255,255,.15);
-      border-radius: 4px; cursor: pointer;
-      transition: all .15s;
-    }
-    .modal-btn-stay:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-      box-shadow: 0 0 16px rgba(42,245,184,.3);
-    }
-    /* Particle sparkles around modal */
-    .modal-spark {
-      position: absolute;
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: sparkFloat 2s ease-in-out infinite;
-    }
-    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes modalPop    { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes iconSpin    { from { transform: rotate(-20deg) scale(0.5); } to { transform: rotate(0deg) scale(1); } }
-    @keyframes sparkFloat  {
-      0%   { transform: translate(0,0) scale(1);   opacity: 1; }
-      50%  { transform: translate(var(--sx),var(--sy)) scale(1.4); opacity: 0.6; }
-      100% { transform: translate(0,0) scale(1);   opacity: 1; }
-    }
+    #inGameBackBtn:hover { color:var(--accent2); border-color:var(--accent2); box-shadow:0 0 10px rgba(245,42,124,.25); }
 
-    #laneWrap { position: relative; flex: 1; width: 100%; max-width: 520px; display: flex; }
-    .lane {
-      flex: 1; position: relative; background: var(--lane-bg);
-      border-left: 1px solid var(--lane-line); overflow: hidden; transition: background .1s;
-    }
-    .lane:last-child { border-right: 1px solid var(--lane-line); }
-    .lane.flash-good { background: rgba(42,245,184,.12); }
-    .lane.flash-bad  { background: rgba(245,42,124,.18); }
-    .lane-key {
-      position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%);
-      font-family: var(--display); font-size: 1.3rem; opacity: .2; pointer-events: none; z-index: 2;
-    }
-    #hitLine {
-      position: absolute; bottom: 80px; left: 0; right: 0; height: 3px;
-      background: var(--hit-line);
-      box-shadow: 0 0 14px var(--hit-line), 0 0 30px rgba(42,245,184,.3);
-      z-index: 5; pointer-events: none;
-    }
-    .note {
-      position: absolute; left: 4px; right: 4px; height: 48px; border-radius: 5px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--display); font-size: 1.2rem; letter-spacing: .08em;
-      pointer-events: none; transition: opacity .12s; z-index: 3;
-    }
-    .note[data-lane="0"] { background: linear-gradient(180deg, rgba(42,245,184,.9), rgba(42,245,184,.6)); color: #05050a; box-shadow: 0 0 16px rgba(42,245,184,.5); }
-    .note[data-lane="1"] { background: linear-gradient(180deg, rgba(42,184,245,.9), rgba(42,184,245,.6)); color: #05050a; box-shadow: 0 0 16px rgba(42,184,245,.5); }
-    .note[data-lane="2"] { background: linear-gradient(180deg, rgba(245,42,124,.9), rgba(245,42,124,.6)); color: #fff;    box-shadow: 0 0 16px rgba(245,42,124,.5); }
-    .note[data-lane="3"] { background: linear-gradient(180deg, rgba(245,193,42,.9), rgba(245,193,42,.6)); color: #05050a; box-shadow: 0 0 16px rgba(245,193,42,.5); }
-    .note.hit  { animation: noteHit  .25s ease-out forwards; }
-    .note.miss { animation: noteMiss .3s  ease-out forwards; }
-    .particle {
-      position: absolute; width: 6px; height: 6px; border-radius: 50%;
-      pointer-events: none; z-index: 6;
-      animation: particleFly .5s ease-out forwards;
-    }
-    .combo-burst {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: 110px; font-family: var(--display); font-size: 1.4rem; letter-spacing: .1em;
-      color: var(--accent3); text-shadow: 0 0 12px var(--accent3);
-      pointer-events: none; z-index: 8;
-      animation: burstPop .6s ease-out forwards; white-space: nowrap;
-    }
-    #missFlash {
-      position: fixed; inset: 0; background: rgba(245,42,124,.12);
-      pointer-events: none; z-index: 90; opacity: 0; transition: opacity .05s;
-    }
-    #missFlash.show { opacity: 1; }
-    @keyframes pulse {
-      0%, 100% { text-shadow: 0 0 20px var(--accent), 0 0 60px rgba(42,245,184,.4); }
-      50%       { text-shadow: 0 0 40px var(--accent), 0 0 100px rgba(42,245,184,.7), 0 0 160px rgba(42,245,184,.3); }
-    }
-    @keyframes noteHit  { 0% { transform: scaleY(1) scaleX(1); opacity: 1; } 60% { transform: scaleY(.3) scaleX(1.4); opacity: .8; } 100% { transform: scaleY(0) scaleX(1.8); opacity: 0; } }
-    @keyframes noteMiss { 0% { opacity: 1; transform: translateX(0); } 30% { transform: translateX(-6px); } 60% { transform: translateX(6px); } 100% { opacity: 0; } }
-    @keyframes particleFly { 0% { opacity: 1; transform: translate(0,0) scale(1); } 100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); } }
-    @keyframes burstPop { 0% { opacity: 0; transform: translateX(-50%) scale(.5); } 30% { opacity: 1; transform: translateX(-50%) scale(1.2); } 70% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) scale(.9) translateY(-20px); } }
+    /* ── Song label ── */
+    #songLabel { position:absolute; bottom:90px; right:8px; font-size:.6rem; letter-spacing:.15em; color:rgba(255,255,255,.18); pointer-events:none; z-index:10; writing-mode:vertical-rl; }
+
+    /* ── Lanes ── */
+    #laneWrap { position:relative; flex:1; width:100%; max-width:520px; display:flex; }
+    .lane { flex:1; position:relative; background:var(--lane-bg); border-left:1px solid var(--lane-line); overflow:hidden; transition:background .1s; }
+    .lane:last-child { border-right:1px solid var(--lane-line); }
+    .lane.flash-good { background:rgba(42,245,184,.12); }
+    .lane.flash-bad  { background:rgba(245,42,124,.18); }
+    .lane-key { position:absolute; bottom:64px; left:50%; transform:translateX(-50%); font-family:var(--display); font-size:1.3rem; opacity:.2; pointer-events:none; z-index:2; }
+    #hitLine { position:absolute; bottom:80px; left:0; right:0; height:3px; background:var(--hit-line); box-shadow:0 0 14px var(--hit-line),0 0 30px rgba(42,245,184,.3); z-index:5; pointer-events:none; }
+
+    /* ── Notes ── */
+    .note { position:absolute; left:4px; right:4px; height:48px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:1.2rem; pointer-events:none; z-index:3; }
+    .note[data-lane="0"] { background:linear-gradient(180deg,rgba(42,245,184,.9),rgba(42,245,184,.6)); color:#05050a; box-shadow:0 0 16px rgba(42,245,184,.5); }
+    .note[data-lane="1"] { background:linear-gradient(180deg,rgba(42,184,245,.9),rgba(42,184,245,.6)); color:#05050a; box-shadow:0 0 16px rgba(42,184,245,.5); }
+    .note[data-lane="2"] { background:linear-gradient(180deg,rgba(245,42,124,.9),rgba(245,42,124,.6)); color:#fff;    box-shadow:0 0 16px rgba(245,42,124,.5); }
+    .note[data-lane="3"] { background:linear-gradient(180deg,rgba(245,193,42,.9),rgba(245,193,42,.6)); color:#05050a; box-shadow:0 0 16px rgba(245,193,42,.5); }
+    .note.hit  { animation:noteHit  .25s ease-out forwards; }
+    .note.miss { animation:noteMiss .3s  ease-out forwards; }
+
+    .particle { position:absolute; width:6px; height:6px; border-radius:50%; pointer-events:none; z-index:6; animation:particleFly .5s ease-out forwards; }
+    .combo-burst { position:absolute; left:50%; transform:translateX(-50%); bottom:110px; font-family:var(--display); font-size:1.4rem; letter-spacing:.1em; color:var(--accent3); text-shadow:0 0 12px var(--accent3); pointer-events:none; z-index:8; animation:burstPop .6s ease-out forwards; white-space:nowrap; }
+    #missFlash { position:fixed; inset:0; background:rgba(245,42,124,.12); pointer-events:none; z-index:90; opacity:0; transition:opacity .05s; }
+    #missFlash.show { opacity:1; }
+
+    /* ── Streak modal ── */
+    #streakModal { display:none; position:fixed; inset:0; z-index:500; align-items:center; justify-content:center; background:rgba(5,5,10,0.88); backdrop-filter:blur(7px); }
+    #streakModal.show { display:flex; animation:modalFadeIn .3s ease-out; }
+    .modal-box { position:relative; background:linear-gradient(160deg,#0d0d22,#05050a); border:2px solid #39ff14; border-radius:10px; padding:44px 48px 40px; text-align:center; max-width:420px; width:90%; box-shadow:0 0 60px rgba(57,255,20,0.3),0 0 120px rgba(57,255,20,0.1); animation:modalPop .4s cubic-bezier(0.34,1.56,0.64,1); }
+    .modal-icon { font-size:52px; margin-bottom:12px; animation:iconSpin .6s ease-out; }
+    .modal-title { font-family:var(--display); font-size:2.8rem; letter-spacing:.15em; color:#39ff14; text-shadow:0 0 20px #39ff14,0 0 40px rgba(57,255,20,0.5); margin-bottom:6px; }
+    .modal-sub { font-size:.75rem; letter-spacing:.25em; color:rgba(255,255,255,.4); margin-bottom:24px; text-transform:uppercase; }
+    .modal-stat { display:inline-block; background:rgba(57,255,20,0.08); border:1px solid rgba(57,255,20,0.25); border-radius:4px; padding:8px 20px; margin-bottom:28px; font-family:var(--display); font-size:1.3rem; color:var(--accent3); text-shadow:0 0 10px var(--accent3); }
+    .modal-divider { height:1px; background:linear-gradient(90deg,transparent,rgba(57,255,20,0.3),transparent); margin-bottom:24px; }
+    .modal-question { font-size:.72rem; letter-spacing:.2em; color:rgba(255,255,255,.35); margin-bottom:16px; text-transform:uppercase; }
+    .modal-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .modal-btn-arcade { font-family:var(--display); font-size:1.2rem; letter-spacing:.15em; padding:.65rem 1.8rem; background:#39ff14; color:#05050a; border:none; border-radius:4px; cursor:pointer; box-shadow:0 0 24px rgba(57,255,20,0.5),4px 4px 0 rgba(0,0,0,0.4); transition:all .15s; }
+    .modal-btn-arcade:hover { transform:translate(-2px,-2px); box-shadow:0 0 40px rgba(57,255,20,0.8),6px 6px 0 rgba(0,0,0,0.4); }
+    .modal-btn-stay { font-family:var(--display); font-size:1.2rem; letter-spacing:.15em; padding:.65rem 1.8rem; background:transparent; color:rgba(255,255,255,.4); border:2px solid rgba(255,255,255,.15); border-radius:4px; cursor:pointer; transition:all .15s; }
+    .modal-btn-stay:hover { color:var(--accent); border-color:var(--accent); box-shadow:0 0 16px rgba(42,245,184,.3); }
+    .modal-spark { position:absolute; width:5px; height:5px; border-radius:50%; pointer-events:none; animation:sparkFloat 2s ease-in-out infinite; }
+
+    /* ── Animations ── */
+    @keyframes pulse { 0%,100%{text-shadow:0 0 20px var(--accent),0 0 60px rgba(42,245,184,.4);}50%{text-shadow:0 0 40px var(--accent),0 0 100px rgba(42,245,184,.7),0 0 160px rgba(42,245,184,.3);} }
+    @keyframes noteHit  { 0%{transform:scaleY(1) scaleX(1);opacity:1;}60%{transform:scaleY(.3) scaleX(1.4);opacity:.8;}100%{transform:scaleY(0) scaleX(1.8);opacity:0;} }
+    @keyframes noteMiss { 0%{opacity:1;transform:translateX(0);}30%{transform:translateX(-6px);}60%{transform:translateX(6px);}100%{opacity:0;} }
+    @keyframes particleFly { 0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
+    @keyframes burstPop { 0%{opacity:0;transform:translateX(-50%) scale(.5);}30%{opacity:1;transform:translateX(-50%) scale(1.2);}70%{opacity:1;transform:translateX(-50%) scale(1);}100%{opacity:0;transform:translateX(-50%) scale(.9) translateY(-20px);} }
+    @keyframes modalFadeIn { from{opacity:0;}to{opacity:1;} }
+    @keyframes modalPop    { from{transform:scale(0.6);opacity:0;}to{transform:scale(1);opacity:1;} }
+    @keyframes iconSpin    { from{transform:rotate(-20deg) scale(0.5);}to{transform:rotate(0deg) scale(1);} }
+    @keyframes sparkFloat  { 0%,100%{transform:translate(0,0) scale(1);opacity:1;}50%{transform:translate(var(--sx),var(--sy)) scale(1.4);opacity:0.6;} }
   </style>
 </head>
 <body>
 
-  <!-- ── In-game unlock banner ── -->
-  <div id="comboUnlockBanner">⚡ STAGE 2 UNLOCKED — STACK BUILDER READY ⚡</div>
-
-  <!-- ── Start Screen ── -->
-  <div id="startScreen" class="screen">
-    <div class="logo">CONSECUTIVE</div>
-    <div class="subtitle">Rhythm · Precision · Streak</div>
-    <a href="index.html" class="arcade-back">← ARCADE HUB</a>
-    <div class="key-legend">
-      <div class="key-box"><div class="key-cap d">D</div><div class="key-label">LANE 1</div></div>
-      <div class="key-box"><div class="key-cap f">F</div><div class="key-label">LANE 2</div></div>
-      <div class="key-box"><div class="key-cap j">J</div><div class="key-label">LANE 3</div></div>
-      <div class="key-box"><div class="key-cap k">K</div><div class="key-label">LANE 4</div></div>
-    </div>
-    <button class="btn" id="startBtn">START GAME</button>
-    <div class="hint">HIT 10 COMBO TO UNLOCK STAGE 2 — STACK BUILDER</div>
+<!-- ── Start Screen ── -->
+<div id="startScreen" class="screen">
+  <div class="logo">CONSECUTIVE</div>
+  <div class="subtitle">Rhythm · Precision · Streak</div>
+  <a href="index.html" class="arcade-back">← ARCADE HUB</a>
+  <div class="key-legend">
+    <div class="key-box"><div class="key-cap d">D</div><div class="key-label">LANE 1</div></div>
+    <div class="key-box"><div class="key-cap f">F</div><div class="key-label">LANE 2</div></div>
+    <div class="key-box"><div class="key-cap j">J</div><div class="key-label">LANE 3</div></div>
+    <div class="key-box"><div class="key-cap k">K</div><div class="key-label">LANE 4</div></div>
   </div>
+  <button class="btn" id="startBtn">START GAME</button>
+  <div class="hint">HIT 10 COMBO TO UNLOCK STAGE 2 — STACK BUILDER</div>
+</div>
 
-  <!-- ── Game Over Screen ── -->
-  <div id="gameOverScreen" class="screen hidden">
-    <div class="over-title">STREAK BROKEN</div>
-    <div class="over-stats">
-      SCORE &nbsp;&nbsp;<span id="finalScore">0</span><br>
-      BEST STREAK &nbsp;&nbsp;<span id="finalStreak">0</span><br>
-      MAX MULTIPLIER &nbsp;&nbsp;<span id="finalMult">1×</span>
+<!-- ── Game Over Screen ── -->
+<div id="gameOverScreen" class="screen hidden">
+  <div class="over-title">STREAK BROKEN</div>
+  <div class="over-stats">
+    SCORE &nbsp;&nbsp;<span id="finalScore">0</span><br>
+    BEST STREAK &nbsp;&nbsp;<span id="finalStreak">0</span><br>
+    MAX MULTIPLIER &nbsp;&nbsp;<span id="finalMult">1×</span>
+  </div>
+  <div class="unlock-badge" id="unlockBadge">✅ STAGE 2 UNLOCKED — HEAD BACK TO ARCADE!</div>
+  <div class="btn-row">
+    <button class="btn" id="restartBtn">TRY AGAIN</button>
+    <button class="btn-arcade" id="arcadeBtn">← ARCADE HUB</button>
+  </div>
+</div>
+
+<!-- ── Game ── -->
+<div id="gameWrap">
+  <div id="hud">
+    <div class="hud-block">
+      <div class="hud-label">SCORE</div>
+      <div class="hud-value" id="scoreVal">0</div>
     </div>
-    <div class="unlock-badge" id="unlockBadge">✅ STAGE 2 UNLOCKED — HEAD BACK TO ARCADE!</div>
-    <div class="btn-row">
-      <button class="btn" id="restartBtn">TRY AGAIN</button>
-      <button class="btn-arcade" id="arcadeBtn">← ARCADE HUB</button>
+    <div class="hud-block" style="text-align:center">
+      <div class="hud-label">STREAK</div>
+      <div class="hud-value" id="streakVal">0</div>
+      <div id="multVal">1×</div>
+    </div>
+    <div class="hud-block" style="text-align:right; padding-right:80px;">
+      <div class="hud-label">BEST</div>
+      <div class="hud-value" id="bestVal">0</div>
+    </div>
+    <!-- ★ Back-to-start button always visible during gameplay ★ -->
+    <button id="inGameBackBtn">■ QUIT</button>
+  </div>
+  <div id="laneWrap">
+    <div id="hitLine"></div>
+  </div>
+  <div id="songLabel">ODE TO JOY — BEETHOVEN</div>
+</div>
+
+<div id="missFlash"></div>
+
+<!-- ── Unlock modal ── -->
+<div id="streakModal">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-icon">🎉</div>
+    <div class="modal-title">UNLOCKED!</div>
+    <div class="modal-sub">Stage 2 — Stack Builder</div>
+    <div class="modal-stat" id="modalComboStat">10 COMBO</div>
+    <div class="modal-divider"></div>
+    <div class="modal-question">What do you want to do?</div>
+    <div class="modal-btns">
+      <button class="modal-btn-arcade" id="modalArcadeBtn">⚡ BACK TO ARCADE</button>
+      <button class="modal-btn-stay"   id="modalStayBtn">KEEP PLAYING</button>
     </div>
   </div>
+</div>
 
-  <!-- ── Game ── -->
-  <div id="gameWrap">
-    <div id="hud">
-      <div class="hud-block">
-        <div class="hud-label">SCORE</div>
-        <div class="hud-value" id="scoreVal">0</div>
-      </div>
-      <div class="hud-block" style="text-align:center">
-        <div class="hud-label">STREAK</div>
-        <div class="hud-value" id="streakVal">0</div>
-        <div id="multVal">1×</div>
-      </div>
-      <div class="hud-block" style="text-align:right">
-        <div class="hud-label">BEST</div>
-        <div class="hud-value" id="bestVal">0</div>
-      </div>
-    </div>
-    <div id="laneWrap">
-      <div id="hitLine"></div>
-    </div>
-  </div>
+<script>
+/* ════════════════════════════════════════════════════════
+   RESET UNLOCK ON EVERY PAGE LOAD
+   (unlock is only stored while actively playing the arcade run)
+════════════════════════════════════════════════════════ */
+localStorage.removeItem('gj_unlocked');
+localStorage.removeItem('gj_piano_combo');
 
-  <div id="missFlash"></div>
+/* ════════════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════════════ */
+const COMBO_REQUIRED = 10;
 
-  <!-- ── Streak unlock pop-up ── -->
-  <div id="streakModal">
-    <div class="modal-box" id="modalBox">
-      <div class="modal-icon">🎉</div>
-      <div class="modal-title">UNLOCKED!</div>
-      <div class="modal-sub">Stage 2 — Stack Builder</div>
-      <div class="modal-stat" id="modalComboStat">10 COMBO</div>
-      <div class="modal-divider"></div>
-      <div class="modal-question">What do you want to do?</div>
-      <div class="modal-btns">
-        <button class="modal-btn-arcade" id="modalArcadeBtn">⚡ BACK TO ARCADE</button>
-        <button class="modal-btn-stay"   id="modalStayBtn">KEEP PLAYING</button>
-      </div>
-    </div>
-  </div>
+const CONFIG = {
+  LANES:          ['D','F','J','K'],
+  NOTE_HEIGHT:    48,
+  HIT_LINE_BOTTOM:80,
+  HIT_WINDOW:     56,    // slightly generous so song feel is fair
+  BASE_SPEED:     260,
+  POINTS_PER_HIT: 100,
+};
 
-  <script>
-  /* ── CONFIG ── */
-  const COMBO_REQUIRED = 10; // combo needed to unlock next stage
-  const STAGE_NUMBER   = 1;  // this game's stage number
+/* ════════════════════════════════════════════════════════
+   SONG — "Ode to Joy" (Beethoven, public domain)
+   Each entry: [beatTime_ms, lane]
+   Lane mapping: D=0(E), F=1(F/G), J=2(A), K=3(B/C)
+   BPM = 112, beat = ~535ms
+   The melody is charted so notes hit the line on the beat.
+════════════════════════════════════════════════════════ */
+const BPM         = 112;
+const BEAT        = 60000 / BPM;   // ~535ms per beat
 
-  const CONFIG = {
-    LANES: ['D','F','J','K'],
-    NOTE_HEIGHT: 48,
-    HIT_LINE_BOTTOM: 80,
-    HIT_WINDOW: 52,
-    BASE_SPEED: 280,
-    SPEED_INCREMENT: 12,
-    BASE_INTERVAL: 900,
-    MIN_INTERVAL: 320,
-    POINTS_PER_HIT: 100,
-  };
+// Ode to Joy melody mapped to 4 lanes (E=0, F/G=1, A=2, B/C=3)
+// Pattern repeats twice with variation
+const MELODY_BEATS = [
+  // Bar 1-2: E E F G  G F E D  C C D E  E. D D
+  [0,0],[1,0],[2,1],[3,3],  [4,3],[5,1],[6,0],[7,2],
+  [8,1],[9,1],[10,2],[11,0], [12,0],[13,0],[14,2],[15,2],
+  // Bar 3-4: E E F G  G F E D  C C D E  D. C C
+  [16,0],[17,0],[18,1],[19,3], [20,3],[21,1],[22,0],[23,2],
+  [24,1],[25,1],[26,2],[27,0], [28,2],[29,2],[30,1],[31,1],
+  // Bar 5-6: D D E C  D E F E  C D E F  E D C D
+  [32,2],[33,2],[34,0],[35,1], [36,2],[37,0],[38,1],[39,0],
+  [40,1],[41,2],[42,0],[43,1], [44,0],[45,2],[46,1],[47,2],
+  // Bar 7-8 (repeat of 1-2)
+  [48,0],[49,0],[50,1],[51,3], [52,3],[53,1],[54,0],[55,2],
+  [56,1],[57,1],[58,2],[59,0], [60,0],[61,0],[62,2],[63,2],
+  // Second verse with doubles for difficulty
+  [64,0],[65,0],[66,1],[67,3], [68,3],[69,1],[70,0],[71,2],
+  [72,1],[72.5,3],[73,1],[74,2],[75,0], [76,0],[77,0],[78,2],[79,2],
+  [80,0],[81,0],[82,1],[83,3], [84,3],[84.5,1],[85,1],[86,0],[87,2],
+  [88,1],[89,1],[90,2],[91,0], [92,2],[93,2],[94,1],[95,1],
+  // Finale — faster feel
+  [96,0],[96.5,2],[97,0],[97.5,1],[98,3],[98.5,3],
+  [99,1],[99.5,0],[100,2],[100.5,1],[101,0],[101.5,2],
+  [102,1],[102.5,3],[103,0],[103.5,1],[104,2],[104.5,0],
+  [105,3],[105.5,1],[106,0],[106.5,2],[107,1],[107.5,3],
+];
 
-  /* ── AUDIO ── */
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-  function ensureAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
-  function playSound(type) {
-    ensureAudio();
-    const now = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    if (type === 'hit') {
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(880, now);
-      osc.frequency.exponentialRampToValueAtTime(440, now + .08);
-      gain.gain.setValueAtTime(.18, now);
-      gain.gain.exponentialRampToValueAtTime(.001, now + .1);
-      osc.start(now); osc.stop(now + .12);
-    } else if (type === 'combo') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(1320, now);
-      osc.frequency.exponentialRampToValueAtTime(1760, now + .12);
-      gain.gain.setValueAtTime(.14, now);
-      gain.gain.exponentialRampToValueAtTime(.001, now + .18);
-      osc.start(now); osc.stop(now + .2);
-    } else if (type === 'unlock') {
-      // special fanfare for unlocking next stage
-      [0, 0.1, 0.2].forEach((delay, i) => {
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination);
-        o.type = 'sine';
-        const freqs = [880, 1100, 1320];
-        o.frequency.setValueAtTime(freqs[i], now + delay);
-        g.gain.setValueAtTime(.15, now + delay);
-        g.gain.exponentialRampToValueAtTime(.001, now + delay + .18);
-        o.start(now + delay); o.stop(now + delay + .2);
-      });
-    } else {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.exponentialRampToValueAtTime(60, now + .15);
-      gain.gain.setValueAtTime(.22, now);
-      gain.gain.exponentialRampToValueAtTime(.001, now + .2);
-      osc.start(now); osc.stop(now + .22);
-    }
-  }
+// Convert beat positions to ms timestamps
+// Note needs to travel from top to hitline BEFORE the beat moment
+// travel_time = laneHeight / speed  (computed at start)
+let SONG_NOTES = []; // will be populated at game start with adjusted spawn times
 
-  /* ── STATE ── */
-  const state = {
-    running: false,
-    score: 0, streak: 0, bestStreak: 0, maxMult: 1,
-    totalNotes: 0, speed: CONFIG.BASE_SPEED,
-    spawnInterval: CONFIG.BASE_INTERVAL, lastSpawn: 0,
-    notes: [], bestScore: 0,
-    unlockFired: false,   // track if we've already fired the unlock signal
-  };
+/* ════════════════════════════════════════════════════════
+   AUDIO ENGINE — Web Audio synth, plays the actual melody
+════════════════════════════════════════════════════════ */
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let musicScheduler = null;
+let songStartTime  = 0;  // audioCtx.currentTime when song began
 
-  /* ── DOM ── */
-  const startScreen      = document.getElementById('startScreen');
-  const gameOverScreen   = document.getElementById('gameOverScreen');
-  const startBtn         = document.getElementById('startBtn');
-  const restartBtn       = document.getElementById('restartBtn');
-  const arcadeBtn        = document.getElementById('arcadeBtn');
-  const laneWrap         = document.getElementById('laneWrap');
-  const scoreVal         = document.getElementById('scoreVal');
-  const streakVal        = document.getElementById('streakVal');
-  const multVal          = document.getElementById('multVal');
-  const bestVal          = document.getElementById('bestVal');
-  const finalScore       = document.getElementById('finalScore');
-  const finalStreak      = document.getElementById('finalStreak');
-  const finalMult        = document.getElementById('finalMult');
-  const missFlash        = document.getElementById('missFlash');
-  const unlockBadge      = document.getElementById('unlockBadge');
-  const arcadeBtnGame    = document.getElementById('arcadeBtn');
-  const comboUnlockBanner = document.getElementById('comboUnlockBanner');
+function ensureAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
 
-  const laneEls = [];
+// Lane → MIDI-like note frequencies for Ode to Joy
+// Lane 0=E4, Lane 1=F#4/G4 (alternating), Lane 2=A4, Lane 3=B4/C5
+const LANE_FREQS = [
+  [329.63],          // E4
+  [349.23, 392.00],  // F4, G4 (alternating)
+  [440.00],          // A4
+  [493.88, 523.25],  // B4, C5 (alternating)
+];
+const laneFreqIndex = [0,0,0,0]; // track alternation per lane
 
-  function buildLanes() {
-    laneEls.forEach(l => l.remove());
-    laneEls.length = 0;
-    CONFIG.LANES.forEach((key, i) => {
-      const el = document.createElement('div');
-      el.className = 'lane'; el.dataset.lane = i;
-      const label = document.createElement('div');
-      label.className = 'lane-key'; label.textContent = key;
-      el.appendChild(label);
-      laneWrap.insertBefore(el, document.getElementById('hitLine'));
-      laneEls.push(el);
+function playNote(lane, type='hit') {
+  ensureAudio();
+  const now  = audioCtx.currentTime;
+  const freqs = LANE_FREQS[lane];
+  const freq  = freqs[laneFreqIndex[lane] % freqs.length];
+  laneFreqIndex[lane]++;
+
+  const osc  = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const filt = audioCtx.createBiquadFilter();
+  filt.type = 'lowpass'; filt.frequency.value = 2400;
+
+  osc.connect(filt); filt.connect(gain); gain.connect(audioCtx.destination);
+
+  if (type === 'hit') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.start(now); osc.stop(now + 0.38);
+  } else if (type === 'miss') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now + .14);
+    gain.gain.setValueAtTime(.18, now);
+    gain.gain.exponentialRampToValueAtTime(.001, now + .18);
+    osc.start(now); osc.stop(now + .2);
+  } else if (type === 'combo') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq * 2, now);
+    gain.gain.setValueAtTime(.16, now);
+    gain.gain.exponentialRampToValueAtTime(.001, now + .22);
+    osc.start(now); osc.stop(now + .25);
+  } else if (type === 'unlock') {
+    [0, 0.1, 0.2].forEach((d, i) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime([880,1100,1320][i], now+d);
+      g.gain.setValueAtTime(.15, now+d);
+      g.gain.exponentialRampToValueAtTime(.001, now+d+.18);
+      o.start(now+d); o.stop(now+d+.22);
     });
   }
+}
 
-  /* ── PATTERNS ── */
-  const PATTERNS = [[0],[1],[2],[3],[0,1],[1,2],[2,3],[3,2],[0,1,2],[1,2,3],[0,1,2,3],[0,0,1,2],[1,1,2,3]];
-  let patternQueue = [];
-  function fillQueue() { const pat = PATTERNS[Math.floor(Math.random() * PATTERNS.length)]; patternQueue.push(...pat); }
-  function nextLane()  { if (patternQueue.length === 0) fillQueue(); return patternQueue.shift(); }
+// Schedule the backing melody track (soft, in background)
+function scheduleMelody(startAudioTime) {
+  MELODY_BEATS.forEach(([beat, lane]) => {
+    const t = startAudioTime + (beat * BEAT / 1000);
+    if (t < audioCtx.currentTime) return;
+    const freqs = LANE_FREQS[lane];
+    const freq  = freqs[0];
+    const osc   = audioCtx.createOscillator();
+    const gain  = audioCtx.createGain();
+    const filt  = audioCtx.createBiquadFilter();
+    filt.type = 'lowpass'; filt.frequency.value = 1800;
+    osc.connect(filt); filt.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0.0, t);
+    gain.gain.linearRampToValueAtTime(0.06, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+    osc.start(t); osc.stop(t + 0.32);
+  });
+}
 
-  /* ── SPAWN ── */
-  function spawnNote() {
-    const lane = nextLane();
+/* ════════════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════════════ */
+const state = {
+  running: false,
+  score: 0, streak: 0, bestStreak: 0, maxMult: 1,
+  totalHits: 0,
+  notes: [], bestScore: 0,
+  unlockFired: false,
+  songNoteIndex: 0,   // next song note to spawn
+  songStartMs: 0,     // performance.now() when song started
+  travelTime: 0,      // ms for a note to travel from spawn to hit line
+};
+
+/* ════════════════════════════════════════════════════════
+   DOM
+════════════════════════════════════════════════════════ */
+const startScreen    = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const startBtn       = document.getElementById('startBtn');
+const restartBtn     = document.getElementById('restartBtn');
+const arcadeBtn      = document.getElementById('arcadeBtn');
+const laneWrap       = document.getElementById('laneWrap');
+const scoreVal       = document.getElementById('scoreVal');
+const streakVal      = document.getElementById('streakVal');
+const multVal        = document.getElementById('multVal');
+const bestVal        = document.getElementById('bestVal');
+const finalScore     = document.getElementById('finalScore');
+const finalStreak    = document.getElementById('finalStreak');
+const finalMult      = document.getElementById('finalMult');
+const missFlash      = document.getElementById('missFlash');
+const unlockBadge    = document.getElementById('unlockBadge');
+const inGameBackBtn  = document.getElementById('inGameBackBtn');
+
+const laneEls = [];
+
+function buildLanes() {
+  laneEls.forEach(l => l.remove());
+  laneEls.length = 0;
+  CONFIG.LANES.forEach((key, i) => {
     const el = document.createElement('div');
-    el.className = 'note'; el.dataset.lane = lane; el.textContent = CONFIG.LANES[lane];
-    el.style.top = `-${CONFIG.NOTE_HEIGHT}px`;
-    laneEls[lane].appendChild(el);
-    state.notes.push({ lane, el, y: -CONFIG.NOTE_HEIGHT, alive: true, hit: false });
-  }
+    el.className = 'lane'; el.dataset.lane = i;
+    const label = document.createElement('div');
+    label.className = 'lane-key'; label.textContent = key;
+    el.appendChild(label);
+    laneWrap.insertBefore(el, document.getElementById('hitLine'));
+    laneEls.push(el);
+  });
+}
 
-  function getMultiplier() { return 1 + Math.floor(state.streak / 10); }
-
-  function updateHUD() {
-    const mult = getMultiplier();
-    scoreVal.textContent  = state.score;
-    streakVal.textContent = state.streak;
-    multVal.textContent   = `${mult}×`;
-    bestVal.textContent   = Math.max(state.score, state.bestScore);
-    if (state.score > state.bestScore) bestVal.style.color = 'var(--accent)';
-  }
-
-  /* ── ARCADE UNLOCK SIGNAL ── */
-  function fireUnlock(combo) {
-    if (state.unlockFired) return;
-    state.unlockFired = true;
-
-    // Save to localStorage so the hub picks it up
-    localStorage.setItem('gj_unlocked', '2');
-    localStorage.setItem('gj_piano_combo', String(combo));
-
-    playSound('unlock');
-
-    // Show the pop-up modal
-    showUnlockModal(combo);
-  }
-
-  function showUnlockModal(combo) {
-    const modal     = document.getElementById('streakModal');
-    const comboStat = document.getElementById('modalComboStat');
-    const box       = document.getElementById('modalBox');
-
-    comboStat.textContent = combo + ' COMBO';
-    modal.classList.add('show');
-
-    // Spawn sparkles around the box
-    const sparkColors = ['#39ff14','#00f5ff','#ffe600','#ff2d78','#fff'];
-    for (let i = 0; i < 12; i++) {
-      const sp = document.createElement('div');
-      sp.className = 'modal-spark';
-      const angle = (i / 12) * Math.PI * 2;
-      const r = 160 + Math.random() * 60;
-      sp.style.cssText = `
-        left: calc(50% + ${Math.cos(angle) * r}px);
-        top:  calc(50% + ${Math.sin(angle) * r}px);
-        background: ${sparkColors[i % sparkColors.length]};
-        box-shadow: 0 0 6px ${sparkColors[i % sparkColors.length]};
-        --sx: ${(Math.random()-0.5)*30}px;
-        --sy: ${(Math.random()-0.5)*30}px;
-        animation-delay: ${Math.random()*1}s;
-      `;
-      box.appendChild(sp);
-    }
-  }
-
-  /* ── PARTICLES ── */
-  function spawnParticles(laneEl, yPx) {
-    const colors = ['var(--note-d)','var(--note-f)','var(--note-j)','var(--note-k)','#fff'];
-    for (let i = 0; i < 10; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      const angle = Math.random() * Math.PI * 2;
-      const dist  = 30 + Math.random() * 40;
-      p.style.cssText = `left:${laneEl.offsetWidth/2}px; top:${yPx}px; background:${colors[Math.floor(Math.random()*colors.length)]}; --tx:${Math.cos(angle)*dist}px; --ty:${Math.sin(angle)*dist}px;`;
-      laneEl.appendChild(p);
-      setTimeout(() => p.remove(), 520);
-    }
-  }
-
-  function showComboBurst(text) {
-    const el = document.createElement('div');
-    el.className = 'combo-burst'; el.textContent = text;
-    laneWrap.appendChild(el);
-    setTimeout(() => el.remove(), 700);
-  }
-
-  function triggerMiss(note) {
-    note.el.classList.add('miss');
-    setTimeout(() => note.el.remove(), 320);
-    laneEls[note.lane].classList.add('flash-bad');
-    setTimeout(() => laneEls[note.lane].classList.remove('flash-bad'), 160);
-    missFlash.classList.add('show');
-    setTimeout(() => missFlash.classList.remove('show'), 130);
-    state.streak = 0;
-    playSound('miss');
-    updateHUD();
-  }
-
-  function triggerHit(note) {
-    note.hit = true; note.alive = false;
-    const laneEl = laneEls[note.lane];
-    const yPx    = note.y + CONFIG.NOTE_HEIGHT / 2;
-    note.el.classList.add('hit');
-    setTimeout(() => note.el.remove(), 280);
-    spawnParticles(laneEl, yPx);
-    laneEls[note.lane].classList.add('flash-good');
-    setTimeout(() => laneEls[note.lane].classList.remove('flash-good'), 100);
-
-    state.streak++;
-    state.totalNotes++;
-    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
-    const mult = getMultiplier();
-    if (mult > state.maxMult) state.maxMult = mult;
-    state.score += CONFIG.POINTS_PER_HIT * mult;
-
-    // Fire unlock the moment the combo threshold is first hit
-    if (state.streak >= COMBO_REQUIRED && !state.unlockFired) {
-      fireUnlock(state.streak);
-    }
-
-    if (state.streak > 0 && state.streak % 10 === 0) {
-      playSound('combo');
-      showComboBurst(`${state.streak} COMBO  ${mult}×`);
+/* ════════════════════════════════════════════════════════
+   SPAWN FROM SONG CHART
+════════════════════════════════════════════════════════ */
+function checkSongSpawns(nowMs) {
+  // Spawn notes early enough that they arrive at the hit line on the beat
+  while (state.songNoteIndex < SONG_NOTES.length) {
+    const note = SONG_NOTES[state.songNoteIndex];
+    // spawn when: now >= note.hitMs - travelTime
+    if (nowMs >= note.hitMs - state.travelTime) {
+      spawnNote(note.lane, note.hitMs);
+      state.songNoteIndex++;
     } else {
-      playSound('hit');
+      break;
     }
-
-    if (state.totalNotes % 8 === 0) {
-      state.speed = Math.min(state.speed + CONFIG.SPEED_INCREMENT, 700);
-      state.spawnInterval = Math.max(state.spawnInterval - 35, CONFIG.MIN_INTERVAL);
-    }
-    updateHUD();
   }
-
-  /* ── KEY HANDLER ── */
-  const KEY_MAP = { d:0, f:1, j:2, k:3 };
-  document.addEventListener('keydown', e => {
-    if (!state.running) return;
+  // Loop song
+  if (state.songNoteIndex >= SONG_NOTES.length) {
+    // restart song
+    state.songNoteIndex = 0;
+    const extraMs = SONG_NOTES[SONG_NOTES.length-1].hitMs + BEAT * 2;
+    state.songStartMs += extraMs;
+    SONG_NOTES = buildSongNotes(state.songStartMs);
+    // reschedule melody
     ensureAudio();
-    const lane = KEY_MAP[e.key.toLowerCase()];
-    if (lane === undefined) return;
-    e.preventDefault();
-    const laneEl     = laneEls[lane];
-    const laneHeight = laneEl.offsetHeight;
-    const hitLineTop = laneHeight - CONFIG.HIT_LINE_BOTTOM;
-    let closest = null, minDist = Infinity;
-    for (const note of state.notes) {
-      if (!note.alive || note.hit || note.lane !== lane) continue;
-      const noteCenter = note.y + CONFIG.NOTE_HEIGHT / 2;
-      const dist = Math.abs(noteCenter - hitLineTop);
-      if (dist < CONFIG.HIT_WINDOW && dist < minDist) { minDist = dist; closest = note; }
-    }
-    if (closest) {
-      triggerHit(closest);
-    } else {
-      laneEls[lane].classList.add('flash-bad');
-      setTimeout(() => laneEls[lane].classList.remove('flash-bad'), 120);
-    }
-  });
+    scheduleMelody(audioCtx.currentTime + 0.05);
+  }
+}
 
-  /* ── GAME LOOP ── */
-  let rafId = null, lastTime = 0;
-  function gameLoop(timestamp) {
-    if (!state.running) return;
-    const dt = Math.min((timestamp - lastTime) / 1000, .05);
-    lastTime = timestamp;
-    const laneHeight = laneEls[0].offsetHeight;
-    const hitLineTop = laneHeight - CONFIG.HIT_LINE_BOTTOM;
+function buildSongNotes(startMs) {
+  return MELODY_BEATS.map(([beat, lane]) => ({
+    lane,
+    hitMs: startMs + beat * BEAT,
+  }));
+}
 
-    if (timestamp - state.lastSpawn > state.spawnInterval) {
-      spawnNote(timestamp); state.lastSpawn = timestamp;
-    }
+function spawnNote(lane, hitMs) {
+  const el = document.createElement('div');
+  el.className = 'note'; el.dataset.lane = lane;
+  el.textContent = CONFIG.LANES[lane];
+  el.style.top = `-${CONFIG.NOTE_HEIGHT}px`;
+  laneEls[lane].appendChild(el);
+  state.notes.push({ lane, el, y: -CONFIG.NOTE_HEIGHT, hitMs, alive: true, hit: false });
+}
 
-    for (let i = state.notes.length - 1; i >= 0; i--) {
-      const note = state.notes[i];
-      if (!note.alive) { state.notes.splice(i,1); continue; }
-      note.y += state.speed * dt;
-      note.el.style.top = `${note.y}px`;
-      const noteCentre = note.y + CONFIG.NOTE_HEIGHT / 2;
-      if (noteCentre > hitLineTop + CONFIG.HIT_WINDOW + 10) {
-        note.alive = false; triggerMiss(note); state.notes.splice(i, 1); continue;
-      }
-      if (note.y > laneHeight + 10) { note.el.remove(); state.notes.splice(i, 1); }
-    }
-    rafId = requestAnimationFrame(gameLoop);
+/* ════════════════════════════════════════════════════════
+   SCORING
+════════════════════════════════════════════════════════ */
+function getMultiplier() { return 1 + Math.floor(state.streak / 10); }
+
+function updateHUD() {
+  const mult = getMultiplier();
+  scoreVal.textContent  = state.score;
+  streakVal.textContent = state.streak;
+  multVal.textContent   = `${mult}×`;
+  bestVal.textContent   = Math.max(state.score, state.bestScore);
+}
+
+/* ════════════════════════════════════════════════════════
+   FEEDBACK
+════════════════════════════════════════════════════════ */
+function spawnParticles(laneEl, yPx) {
+  const colors = ['var(--note-d)','var(--note-f)','var(--note-j)','var(--note-k)','#fff'];
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = 30 + Math.random() * 40;
+    p.style.cssText = `left:${laneEl.offsetWidth/2}px;top:${yPx}px;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;`;
+    laneEl.appendChild(p);
+    setTimeout(() => p.remove(), 520);
+  }
+}
+
+function showComboBurst(text) {
+  const el = document.createElement('div');
+  el.className = 'combo-burst'; el.textContent = text;
+  laneWrap.appendChild(el);
+  setTimeout(() => el.remove(), 700);
+}
+
+function triggerMiss(note) {
+  note.el.classList.add('miss');
+  setTimeout(() => note.el.remove(), 320);
+  laneEls[note.lane].classList.add('flash-bad');
+  setTimeout(() => laneEls[note.lane].classList.remove('flash-bad'), 160);
+  missFlash.classList.add('show');
+  setTimeout(() => missFlash.classList.remove('show'), 130);
+  state.streak = 0;
+  playNote(note.lane, 'miss');
+  updateHUD();
+}
+
+function triggerHit(note) {
+  note.hit = true; note.alive = false;
+  const laneEl = laneEls[note.lane];
+  const yPx    = note.y + CONFIG.NOTE_HEIGHT / 2;
+  note.el.classList.add('hit');
+  setTimeout(() => note.el.remove(), 280);
+  spawnParticles(laneEl, yPx);
+  laneEls[note.lane].classList.add('flash-good');
+  setTimeout(() => laneEls[note.lane].classList.remove('flash-good'), 100);
+
+  state.streak++;
+  state.totalHits++;
+  if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+  const mult = getMultiplier();
+  if (mult > state.maxMult) state.maxMult = mult;
+  state.score += CONFIG.POINTS_PER_HIT * mult;
+
+  // Unlock check
+  if (state.streak >= COMBO_REQUIRED && !state.unlockFired) {
+    fireUnlock(state.streak);
   }
 
-  /* ── START / STOP ── */
-  function startGame() {
-    ensureAudio(); buildLanes();
-    Object.assign(state, {
-      running: true, score: 0, streak: 0, bestStreak: 0, maxMult: 1,
-      totalNotes: 0, speed: CONFIG.BASE_SPEED, spawnInterval: CONFIG.BASE_INTERVAL,
-      lastSpawn: 0, notes: [], unlockFired: false,
-    });
-    patternQueue.length = 0;
-    updateHUD();
-    startScreen.classList.add('hidden');
-    gameOverScreen.classList.add('hidden');
-    lastTime = performance.now();
-    rafId = requestAnimationFrame(gameLoop);
+  if (state.streak > 0 && state.streak % 10 === 0) {
+    playNote(note.lane, 'combo');
+    showComboBurst(`${state.streak} COMBO  ${mult}×`);
+  } else {
+    playNote(note.lane, 'hit');
   }
 
-  function endGame() {
-    state.running = false;
-    cancelAnimationFrame(rafId);
-    if (state.score > state.bestScore) state.bestScore = state.score;
-    finalScore.textContent  = state.score;
-    finalStreak.textContent = state.bestStreak;
-    finalMult.textContent   = `${state.maxMult}×`;
-    state.notes.forEach(n => n.el.remove());
-    state.notes.length = 0;
+  updateHUD();
+}
 
-    // Show unlock badge & highlight arcade button if combo was reached
-    if (state.unlockFired || state.bestStreak >= COMBO_REQUIRED) {
-      unlockBadge.classList.add('visible');
-      arcadeBtn.classList.add('highlighted');
-      arcadeBtn.textContent = '⚡ BACK TO ARCADE →';
+/* ════════════════════════════════════════════════════════
+   UNLOCK
+════════════════════════════════════════════════════════ */
+function fireUnlock(combo) {
+  if (state.unlockFired) return;
+  state.unlockFired = true;
+  localStorage.setItem('gj_unlocked', '2');
+  localStorage.setItem('gj_piano_combo', String(combo));
+  playNote(0, 'unlock');
+  showUnlockModal(combo);
+}
+
+function showUnlockModal(combo) {
+  const modal = document.getElementById('streakModal');
+  const stat  = document.getElementById('modalComboStat');
+  const box   = document.getElementById('modalBox');
+  stat.textContent = combo + ' COMBO';
+  modal.classList.add('show');
+  const sparkColors = ['#39ff14','#00f5ff','#ffe600','#ff2d78','#fff'];
+  for (let i = 0; i < 12; i++) {
+    const sp = document.createElement('div');
+    sp.className = 'modal-spark';
+    const angle = (i / 12) * Math.PI * 2;
+    const r = 160 + Math.random() * 60;
+    sp.style.cssText = `left:calc(50% + ${Math.cos(angle)*r}px);top:calc(50% + ${Math.sin(angle)*r}px);background:${sparkColors[i%sparkColors.length]};box-shadow:0 0 6px ${sparkColors[i%sparkColors.length]};--sx:${(Math.random()-.5)*30}px;--sy:${(Math.random()-.5)*30}px;animation-delay:${Math.random()}s;`;
+    box.appendChild(sp);
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   KEY HANDLER
+════════════════════════════════════════════════════════ */
+const KEY_MAP = { d:0, f:1, j:2, k:3 };
+document.addEventListener('keydown', e => {
+  if (!state.running) return;
+  ensureAudio();
+  const lane = KEY_MAP[e.key.toLowerCase()];
+  if (lane === undefined) return;
+  e.preventDefault();
+
+  const laneEl     = laneEls[lane];
+  const laneHeight = laneEl.offsetHeight;
+  const hitLineTop = laneHeight - CONFIG.HIT_LINE_BOTTOM;
+
+  let closest = null, minDist = Infinity;
+  for (const note of state.notes) {
+    if (!note.alive || note.hit || note.lane !== lane) continue;
+    const noteCenter = note.y + CONFIG.NOTE_HEIGHT / 2;
+    const dist = Math.abs(noteCenter - hitLineTop);
+    if (dist < CONFIG.HIT_WINDOW && dist < minDist) { minDist = dist; closest = note; }
+  }
+  if (closest) {
+    triggerHit(closest);
+  } else {
+    laneEls[lane].classList.add('flash-bad');
+    setTimeout(() => laneEls[lane].classList.remove('flash-bad'), 120);
+  }
+});
+
+/* ════════════════════════════════════════════════════════
+   GAME LOOP — notes move at fixed speed, song-driven spawning
+════════════════════════════════════════════════════════ */
+let rafId = null, lastFrameTime = 0;
+
+function gameLoop(timestamp) {
+  if (!state.running) return;
+  const dt = Math.min((timestamp - lastFrameTime) / 1000, .05);
+  lastFrameTime = timestamp;
+
+  const nowMs      = performance.now();
+  const laneHeight = laneEls[0].offsetHeight;
+  const hitLineTop = laneHeight - CONFIG.HIT_LINE_BOTTOM;
+
+  // Spawn song notes
+  checkSongSpawns(nowMs);
+
+  // Move notes
+  for (let i = state.notes.length - 1; i >= 0; i--) {
+    const note = state.notes[i];
+    if (!note.alive) { state.notes.splice(i,1); continue; }
+    note.y += CONFIG.BASE_SPEED * dt;
+    note.el.style.top = `${note.y}px`;
+    const centre = note.y + CONFIG.NOTE_HEIGHT / 2;
+    if (centre > hitLineTop + CONFIG.HIT_WINDOW + 20) {
+      note.alive = false; triggerMiss(note); state.notes.splice(i,1); continue;
     }
-
-    gameOverScreen.classList.remove('hidden');
+    if (note.y > laneHeight + 10) { note.el.remove(); state.notes.splice(i,1); }
   }
 
-  /* ── BUTTONS ── */
-  startBtn.addEventListener('click', startGame);
-  restartBtn.addEventListener('click', startGame);
-  arcadeBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+  rafId = requestAnimationFrame(gameLoop);
+}
 
-  // ── Modal button handlers ──
-  document.getElementById('modalArcadeBtn').addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
-  document.getElementById('modalStayBtn').addEventListener('click', () => {
-    document.getElementById('streakModal').classList.remove('show');
-    // remove sparkles so they don't pile up on re-show
-    document.querySelectorAll('.modal-spark').forEach(s => s.remove());
-  });
-
+/* ════════════════════════════════════════════════════════
+   START / STOP / QUIT
+════════════════════════════════════════════════════════ */
+function startGame() {
+  ensureAudio();
   buildLanes();
-  </script>
+
+  // Calculate how long a note takes to travel from top to hit line
+  const laneHeight = laneEls[0].offsetHeight;
+  const hitLineTop = laneHeight - CONFIG.HIT_LINE_BOTTOM;
+  const travelPx   = hitLineTop + CONFIG.NOTE_HEIGHT; // from -NOTE_HEIGHT to hitLineTop centre
+  state.travelTime = (travelPx / CONFIG.BASE_SPEED) * 1000; // ms
+
+  Object.assign(state, {
+    running: true, score: 0, streak: 0, bestStreak: 0, maxMult: 1,
+    totalHits: 0, notes: [], unlockFired: false,
+    songNoteIndex: 0,
+    songStartMs: performance.now() + 600, // 600ms intro pause
+  });
+
+  // Reset lane frequency alternation
+  laneFreqIndex.fill(0);
+
+  // Build timed note chart
+  SONG_NOTES = buildSongNotes(state.songStartMs);
+
+  // Schedule backing melody
+  const audioDelay = 0.6;
+  scheduleMelody(audioCtx.currentTime + audioDelay);
+
+  updateHUD();
+  startScreen.classList.add('hidden');
+  gameOverScreen.classList.add('hidden');
+  lastFrameTime = performance.now();
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+function stopGame() {
+  state.running = false;
+  cancelAnimationFrame(rafId);
+  state.notes.forEach(n => { try { n.el.remove(); } catch(e){} });
+  state.notes.length = 0;
+}
+
+function quitToStart() {
+  stopGame();
+  // Close modal if open
+  document.getElementById('streakModal').classList.remove('show');
+  document.querySelectorAll('.modal-spark').forEach(s => s.remove());
+  startScreen.classList.remove('hidden');
+  gameOverScreen.classList.add('hidden');
+}
+
+function endGame() {
+  stopGame();
+  if (state.score > state.bestScore) state.bestScore = state.score;
+  finalScore.textContent  = state.score;
+  finalStreak.textContent = state.bestStreak;
+  finalMult.textContent   = `${state.maxMult}×`;
+  if (state.unlockFired || state.bestStreak >= COMBO_REQUIRED) {
+    unlockBadge.classList.add('visible');
+    arcadeBtn.classList.add('highlighted');
+    arcadeBtn.textContent = '⚡ BACK TO ARCADE →';
+  }
+  gameOverScreen.classList.remove('hidden');
+}
+
+/* ════════════════════════════════════════════════════════
+   BUTTON LISTENERS
+════════════════════════════════════════════════════════ */
+startBtn.addEventListener('click',   startGame);
+restartBtn.addEventListener('click', startGame);
+arcadeBtn.addEventListener('click',  () => { window.location.href = 'index.html'; });
+
+// ★ In-game back button — always visible, returns to start screen
+inGameBackBtn.addEventListener('click', quitToStart);
+
+// Modal buttons
+document.getElementById('modalArcadeBtn').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
+document.getElementById('modalStayBtn').addEventListener('click', () => {
+  document.getElementById('streakModal').classList.remove('show');
+  document.querySelectorAll('.modal-spark').forEach(s => s.remove());
+});
+
+// Escape key also quits to start
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && state.running) quitToStart();
+});
+
+buildLanes();
+</script>
 </body>
 </html>
