@@ -241,6 +241,10 @@
     color: rgba(255,255,255,0.3);
     pointer-events: none;
   }
+  @keyframes bannerSlide {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+  }
 </style>
 </head>
 <body>
@@ -279,10 +283,14 @@
 
     <div class="milestone-toast" id="toast"></div>
 
+    <!-- In-game unlock banner -->
+    <div id="unlockBanner" style="display:none; position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg,rgba(57,255,20,0.18),rgba(0,245,255,0.12),rgba(57,255,20,0.18)); border-bottom:1px solid rgba(57,255,20,0.4); padding:10px; text-align:center; font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:#39ff14; text-shadow:0 0 12px #39ff14; z-index:50; animation:bannerSlide .4s ease-out;">⚡ STAGE 3 UNLOCKED — FINALE READY ⚡</div>
+
     <!-- Start / Game Over Screen -->
     <div id="screen-overlay">
+      <a href="index.html" style="position:absolute; top:18px; left:18px; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.25); text-decoration:none; border:1px solid rgba(255,255,255,0.1); border-radius:3px; padding:4px 10px; transition:all .2s;" onmouseover="this.style.color='#00ffcc';this.style.borderColor='#00ffcc';" onmouseout="this.style.color='rgba(255,255,255,0.25)';this.style.borderColor='rgba(255,255,255,0.1)';">← ARCADE</a>
       <div class="screen-title" id="overlayTitle">STACK BUILDER</div>
-      <div class="screen-sub" id="overlaySub">CONSECUTIVE ARCADE</div>
+      <div class="screen-sub" id="overlaySub">HIT 8 STREAK → UNLOCK FINALE</div>
       <div class="stat-row" id="statRow" style="display:none">
         <div class="stat-box">
           <div class="stat-val" id="finalScore">0</div>
@@ -297,7 +305,11 @@
           <div class="stat-lbl">HEIGHT</div>
         </div>
       </div>
-      <button class="play-btn" id="playBtn">▶ PLAY</button>
+      <div id="unlockBadge" style="display:none; background:linear-gradient(135deg,rgba(57,255,20,0.15),rgba(0,245,255,0.1)); border:1.5px solid #39ff14; border-radius:4px; padding:8px 20px; margin-bottom:12px; font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; color:#39ff14; text-shadow:0 0 10px #39ff14;">✅ FINALE UNLOCKED — HEAD BACK TO ARCADE!</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+        <button class="play-btn" id="playBtn">▶ PLAY</button>
+        <button class="play-btn" id="arcadeBtn" style="background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02)); border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4); display:none;">← ARCADE</button>
+      </div>
     </div>
   </div>
 </div>
@@ -333,6 +345,10 @@ const BLOCK_COLORS = [
   ['#ffcc00','#cc9900'],['#00ccff','#0099cc']
 ];
 
+// ── Arcade integration constants ───────────────────────────────────────────
+const STREAK_REQUIRED = 8;  // streak needed to unlock Stage 3
+const STAGE_NUMBER    = 2;  // this game is Stage 2
+
 // ── State ──────────────────────────────────────────────────────────────────
 let state = 'title'; // title | playing | dead
 let blocks = [];        // stacked blocks [{x,y,w,h,color,vel,acc,angle,angVel}]
@@ -350,6 +366,7 @@ let frameCount = 0;
 let colorIndex = 0;
 let physicsAccum = 0;
 let lastPlacedWidth = 140; // tracks the trimmed width of the last placed block
+let unlockFired = false;   // true once we've signalled the hub
 const FIXED_DT = 1/60;
 
 // ── Physics constants ──────────────────────────────────────────────────────
@@ -388,6 +405,7 @@ function newGame() {
   frameCount = 0; colorIndex = 0;
   screenShake = 0;
   lastPlacedWidth = BASE_BLOCK_W;
+  unlockFired = false;
 
   // Place base platform
   blocks.push(makePlatform());
@@ -557,6 +575,28 @@ function landBlock(topBlock) {
   // Screen shake on high streak
   if (streak % 10 === 0) screenShake = 8;
 
+  // Arcade unlock — fire once when streak threshold first reached
+  if (streak >= STREAK_REQUIRED && !unlockFired) {
+    unlockFired = true;
+    localStorage.setItem('gj_unlocked', '3');
+    localStorage.setItem('gj_stack_streak', String(streak));
+    const banner = document.getElementById('unlockBanner');
+    if (banner) { banner.style.display = 'block'; setTimeout(() => banner.style.display = 'none', 4000); }
+    // Play unlock fanfare via Web Audio
+    try {
+      const uc = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.12, 0.24].forEach((delay, i) => {
+        const o = uc.createOscillator(), g = uc.createGain();
+        o.connect(g); g.connect(uc.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime([880,1100,1320][i], uc.currentTime + delay);
+        g.gain.setValueAtTime(.15, uc.currentTime + delay);
+        g.gain.exponentialRampToValueAtTime(.001, uc.currentTime + delay + .2);
+        o.start(uc.currentTime + delay); o.stop(uc.currentTime + delay + .22);
+      });
+    } catch(e) {}
+  }
+
   // Milestone toast
   if ([10,25,50,100].includes(streak)) showToast(`🔥 ${streak} STREAK!`);
 
@@ -589,6 +629,21 @@ function triggerGameOver() {
     finalStreak.textContent = streak;
     finalHeight.textContent = towerHeight;
     playBtn.textContent = '↺ RETRY';
+
+    // Show arcade button always; highlight it if unlock was earned
+    const arcadeBtn = document.getElementById('arcadeBtn');
+    const unlockBadge = document.getElementById('unlockBadge');
+    if (arcadeBtn) {
+      arcadeBtn.style.display = 'inline-block';
+      if (unlockFired || bestStreak >= STREAK_REQUIRED) {
+        unlockBadge.style.display = 'block';
+        arcadeBtn.style.borderColor = '#39ff14';
+        arcadeBtn.style.color = '#39ff14';
+        arcadeBtn.style.textShadow = '0 0 10px #39ff14';
+        arcadeBtn.textContent = '⚡ BACK TO ARCADE →';
+      }
+    }
+
     screenOverlay.classList.remove('hidden');
   }, 600);
 }
@@ -899,7 +954,15 @@ playBtn.addEventListener('click', () => {
   overlaySub.textContent = 'CONSECUTIVE ARCADE';
   statRow.style.display = 'none';
   playBtn.textContent = '▶ PLAY';
+  const arcadeBtn = document.getElementById('arcadeBtn');
+  const unlockBadge = document.getElementById('unlockBadge');
+  if (arcadeBtn) { arcadeBtn.style.display = 'none'; arcadeBtn.style.borderColor = ''; arcadeBtn.style.color = ''; arcadeBtn.textContent = '← ARCADE'; }
+  if (unlockBadge) unlockBadge.style.display = 'none';
   newGame();
+});
+
+document.getElementById('arcadeBtn').addEventListener('click', () => {
+  window.location.href = 'index.html';
 });
 
 // ── Start ──────────────────────────────────────────────────────────────────
