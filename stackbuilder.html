@@ -1,3 +1,158 @@
+
+AI Game Development Prompt
+Create a complete arcade-style physics game called “Stack Builder.” The game is centered around the theme “Consecutive.” The main objective is for the player to stack moving blocks on top of each other to build the tallest tower possible while maintaining a consecutive streak of successful placements.
+Core Gameplay Mechanics
+The game should feature a horizontal moving block at the top of the screen. The player presses a key or taps the screen to drop the block onto the existing tower. If the block lands successfully on the stack, the tower grows taller and the consecutive stack counter increases by one. If the block misses the tower or causes the tower to collapse, the game ends.
+Each successful stack increases the difficulty progressively. Difficulty scaling should include:
+Increased horizontal movement speed of blocks
+Environmental wind forces pushing blocks sideways
+Increased instability in the tower’s physics
+Slight shifts or wobbling of previously placed blocks
+The physics engine should simulate weight, balance, and momentum, allowing poorly aligned blocks to create a tilted tower that may collapse later.
+Scoring System
+Implement a consecutive streak combo system:
+Each successful placement increases the streak count.
+Higher streaks increase the score multiplier.
+Longer streaks should visually and audibly reward the player.
+The score should increase based on tower height and streak multiplier.
+Display the following UI elements clearly:
+Current tower height
+Consecutive stack streak
+Score and multiplier
+Game over screen with final score and best streak
+Visual and Audio Design
+Use a clean, minimalist arcade art style such as colorful geometric blocks or simple pixel art. The tower blocks should be visually distinct and easy to align.
+Backgrounds should include subtle animated environments such as:
+Moving clouds
+A city skyline
+A sunset gradient sky
+These elements should add depth but not distract from gameplay.
+Visual feedback should include:
+Glow effects when streak milestones are reached
+Particle bursts on successful placements
+Screen shake or wobble when instability increases
+Sound design should include:
+A satisfying “click” or “thud” when blocks land correctly
+Creaking or stress sounds when the tower becomes unstable
+Music that gradually intensifies as the streak grows
+Game Progression and Features
+The game should be easy to learn but difficult to master, encouraging repeated attempts. Include quick restarts to keep the gameplay fast and addictive.
+Optional progression features:
+Global or local leaderboards
+Milestones for streak lengths (10, 25, 50, etc.)
+Visual markers showing how tall the tower has grown
+Increasing environmental difficulty over time
+Technical Requirements
+The game should include:
+A functional physics system for stacking and balance
+Smooth controls and responsive input
+Clear UI and feedback systems
+A restart loop for continuous play
+The final product should feel like a fast-paced arcade game focused on precision, timing, and maintaining the longest possible consecutive stacking streak.
+i am using github give me a step by step on how to create this game i want the game to be played on github pages
+
+Show more
+8:37 AM
+
+Check available skills
+Check available skills
+I'll build the complete game and then give you step-by-step GitHub Pages deployment instructions. Let me create a polished, production-ready single-file game first.
+
+
+Created a file, read a file
+Created a file, read a file
+Here's your complete Stack Builder game file, plus the full step-by-step GitHub Pages setup:
+
+🎮 How to Deploy on GitHub Pages
+Step 1 — Create a GitHub Repository
+Go to github.com and sign in
+Click the + icon (top right) → New repository
+Name it stack-builder (or anything you like)
+Set it to Public
+Check "Add a README file"
+Click Create repository
+Step 2 — Upload the Game File
+Download the index.html file above
+In your new repo, click "Add file" → "Upload files"
+Drag and drop index.html into the upload area
+Scroll down, click "Commit changes"
+Step 3 — Enable GitHub Pages
+In your repo, click Settings (top nav)
+Scroll down to "Pages" in the left sidebar
+Under Branch, change it from None to main
+Leave the folder as / (root)
+Click Save
+Step 4 — Play Your Game!
+After ~60 seconds, your game will be live at:
+
+https://YOUR-USERNAME.github.io/stack-builder/
+GitHub will show you the exact URL in the Pages settings once it's deployed.
+
+🕹️ Controls
+Action	Key / Input
+Drop block	Space, Enter, ↓, or tap/click
+Restart	Click RETRY button
+🔥 Features Included
+Physics engine — gravity, momentum, block wobble, wind drift
+Streak combo system — multiplier increases every 5 consecutive placements
+Progressive difficulty — faster blocks, stronger wind, more instability as you climb
+Trimming mechanic — blocks shrink to the overlap area (classic stacker style)
+Particle bursts, screen shake, glow effects on streaks
+Milestone toasts — at 10, 25, 50, 100 consecutive stacks
+Animated city skyline + star field + cloud parallax
+Best score persistence within the session
+Index
+Code · HTML 
+the game looks really nice i want the game to get more difficult as you climb up and also can you make the game harder so that the new block is the same size as the block that was placed the round before
+
+8:42 AM
+
+Viewed 2 files
+Viewed 2 files
+Now I have the full picture. I'll make two key changes:
+
+New block inherits the width of the previously placed block (not random)
+Steeper difficulty curve — faster speeds, earlier wind, tighter minimum overlap, shorter spawn delay
+
+Edited 4 files, ran 4 commands
+Edited 4 files, ran 4 commands
+All 7 changes verified. Let me present the updated file:
+
+
+Presented file
+Presented file
+Here's what changed in this update:
+
+Block sizing — The new block now spawns at the exact trimmed width of the block you just placed. Miss slightly? The next block is smaller. Miss a lot and barely survive? That tiny block is what you have to work with next. It creates a real snowball effect where small mistakes compound.
+
+Steeper difficulty curve — Previously it took ~66 blocks to reach max difficulty. Now it ramps much faster:
+
+Height 5 → blocks already noticeably faster
+Height 15 → speed is intense, wind is active
+Height 25+ → very fast, frequent wind shifts, aggressive wobble
+Other tightened settings:
+
+Wind kicks in at height 3 (was 5), and blows up to 50% harder
+Wobble instability starts earlier and shakes more aggressively
+Spawn delay drops from 300ms → 80ms as you climb (less breathing room)
+Minimum overlap to survive a landing raised from 25% → 30% of block width
+To update on GitHub, just re-upload the new index.html to your repo and commit — GitHub Pages will refresh automatically within a minute.
+
+Index
+Code · HTML 
+
+
+Next time, try this in Cowork
+
+Hand off complex tasks for Claude to handle independently. Come back to finished results.
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+Index · HTML
+Copy
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -349,6 +504,7 @@ let cityBuildings = [];
 let frameCount = 0;
 let colorIndex = 0;
 let physicsAccum = 0;
+let lastPlacedWidth = 140; // tracks the trimmed width of the last placed block
 const FIXED_DT = 1/60;
 
 // ── Physics constants ──────────────────────────────────────────────────────
@@ -356,8 +512,8 @@ const GRAVITY = 0.5;
 const FRICTION = 0.85;
 const ANG_FRICTION = 0.88;
 const BLOCK_H = 28;
-const BASE_BLOCK_W = 100;
-const MIN_BLOCK_W = 52;
+const BASE_BLOCK_W = 140; // starting platform width
+const MIN_BLOCK_W = 18;   // absolute minimum before game becomes nearly impossible
 
 // ── Init scene ─────────────────────────────────────────────────────────────
 function initScene() {
@@ -386,6 +542,7 @@ function newGame() {
   wind = 0; windTarget = 0;
   frameCount = 0; colorIndex = 0;
   screenShake = 0;
+  lastPlacedWidth = BASE_BLOCK_W;
 
   // Place base platform
   blocks.push(makePlatform());
@@ -413,10 +570,13 @@ function getStackTopY() {
 
 function spawnMovingBlock() {
   colorIndex = (colorIndex+1) % BLOCK_COLORS.length;
-  const w = Math.max(MIN_BLOCK_W, BASE_BLOCK_W - difficulty*30 + (Math.random()-0.5)*20);
-  const speed = (2 + difficulty*3.5) * (Math.random()<0.5?1:-1);
+  // New block is exactly the same width as the last placed block
+  const w = Math.max(MIN_BLOCK_W, lastPlacedWidth);
+  // Speed ramps steeply with difficulty — by height ~20 it is very fast
+  const baseSpeed = 2.2 + difficulty * 7.0;
+  const speed = baseSpeed * (Math.random() < 0.5 ? 1 : -1);
   movingBlock = {
-    x: speed>0 ? -w : W,
+    x: speed > 0 ? -w : W,
     y: getStackTopY() - BLOCK_H - 10,
     w, h: BLOCK_H,
     vx: speed, vy: 0,
@@ -471,11 +631,11 @@ function physicsStep() {
     if (movingBlock.x > W + 5) movingBlock.x = -movingBlock.w;
   }
 
-  // Wobble stacked blocks (instability)
-  if (difficulty > 0.3) {
+  // Wobble stacked blocks (instability) — kicks in sooner and stronger
+  if (difficulty > 0.12) {
     blocks.forEach((b, i) => {
       if (b.locked) return;
-      b.angVel += (Math.random()-0.5) * difficulty * 0.015;
+      b.angVel += (Math.random()-0.5) * difficulty * 0.025;
       b.angVel *= ANG_FRICTION;
       b.angle += b.angVel;
       // Clamp angle
@@ -503,7 +663,8 @@ function landBlock(topBlock) {
   const overlapRight = Math.min(mb.x + mb.w, topBlock.x + topBlock.w);
   const overlap = overlapRight - overlapLeft;
 
-  const minOverlap = mb.w * 0.25;
+  // Require 30% overlap — tighter than before, punishes sloppy drops more
+  const minOverlap = mb.w * 0.30;
 
   if (overlap < minOverlap) {
     // Miss — not enough overlap
@@ -519,6 +680,9 @@ function landBlock(topBlock) {
   mb.vx = 0; mb.vy = 0;
   mb.locked = false;
 
+  // Record the trimmed width — next block will match this exact size
+  lastPlacedWidth = mb.w;
+
   blocks.push({...mb});
   towerHeight = blocks.length - 1;
 
@@ -530,14 +694,17 @@ function landBlock(topBlock) {
   score += pts;
   if (score > bestScore) bestScore = score;
 
-  // Difficulty
-  difficulty = Math.min(1, towerHeight * 0.015);
+  // Difficulty — steeper curve: already hard by height 15
+  difficulty = Math.min(1, towerHeight * 0.028);
 
-  // Wind
-  if (towerHeight % 5 === 0 && towerHeight > 0) {
-    windTarget = (Math.random()-0.5) * difficulty * 4;
+  // Wind kicks in earlier (height 3) and gets stronger
+  if (towerHeight >= 3 && towerHeight % 4 === 0) {
+    windTarget = (Math.random()-0.5) * difficulty * 6;
   }
   wind += (windTarget - wind) * 0.08;
+
+  // Spawn delay shrinks with difficulty (from 300ms down to 80ms)
+  const spawnDelay = Math.max(80, 300 - difficulty * 220);
 
   // Particles
   spawnParticles(mb.x + mb.w/2, mb.y, mb.color[0], streak % 10 === 0 ? 30 : 12);
@@ -551,7 +718,7 @@ function landBlock(topBlock) {
   movingBlock = null;
   updateHUD();
   scrollCamera();
-  setTimeout(spawnMovingBlock, 300);
+  setTimeout(spawnMovingBlock, spawnDelay);
 }
 
 // ── Camera scroll (keep tower top visible) ─────────────────────────────────
