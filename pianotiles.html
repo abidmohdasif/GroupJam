@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONSECUTIVE — Rhythm Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <!-- ============================================================
+       STYLES
+  ============================================================ -->
+  <style>
+    /* ── Reset & Variables ───────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #05050a;
+      --lane-bg:   #0c0c18;
+      --lane-line: #1a1a30;
+      --hit-line:  #2af5b8;
+      --accent:    #2af5b8;
+      --accent2:   #f52a7c;
+      --accent3:   #f5c12a;
+      --note-d:    #2af5b8;
+      --note-f:    #2ab8f5;
+      --note-j:    #f52a7c;
+      --note-k:    #f5c12a;
+      --text:      #e0f0ff;
+      --mono:      'Share Tech Mono', monospace;
+      --display:   'Bebas Neue', sans-serif;
+    }
+
+    html, body {
+      height: 100%; width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── Scanline overlay ────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.18) 2px,
+        rgba(0,0,0,.18) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── Screens ─────────────────────────────────────── */
+    .screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 100;
+      transition: opacity .4s;
+    }
+    .screen.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── Start Screen ────────────────────────────────── */
+    #startScreen {
+      background: radial-gradient(ellipse at 50% 40%, #0e0e22 0%, #05050a 70%);
+    }
+    .logo {
+      font-family: var(--display);
+      font-size: clamp(4rem, 12vw, 9rem);
+      letter-spacing: .12em;
+      color: var(--accent);
+      text-shadow:
+        0 0 20px var(--accent),
+        0 0 60px rgba(42,245,184,.4),
+        0 0 120px rgba(42,245,184,.2);
+      animation: pulse 2.4s ease-in-out infinite;
+      line-height: 1;
+    }
+    .subtitle {
+      font-size: .85rem;
+      letter-spacing: .35em;
+      color: rgba(255,255,255,.45);
+      text-transform: uppercase;
+      margin-top: .6rem;
+      margin-bottom: 3.5rem;
+    }
+    .key-legend {
+      display: flex; gap: 1.2rem;
+      margin-bottom: 3rem;
+    }
+    .key-box {
+      display: flex; flex-direction: column;
+      align-items: center; gap: .4rem;
+    }
+    .key-cap {
+      width: 52px; height: 52px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--display);
+      font-size: 1.6rem;
+      letter-spacing: .05em;
+      border: 2px solid;
+      transition: transform .15s;
+    }
+    .key-cap.d { color: var(--note-d); border-color: var(--note-d); box-shadow: 0 0 12px var(--note-d); }
+    .key-cap.f { color: var(--note-f); border-color: var(--note-f); box-shadow: 0 0 12px var(--note-f); }
+    .key-cap.j { color: var(--note-j); border-color: var(--note-j); box-shadow: 0 0 12px var(--note-j); }
+    .key-cap.k { color: var(--note-k); border-color: var(--note-k); box-shadow: 0 0 12px var(--note-k); }
+    .key-label { font-size: .6rem; letter-spacing: .2em; opacity: .5; }
+
+    .btn {
+      font-family: var(--display);
+      font-size: 1.6rem;
+      letter-spacing: .2em;
+      padding: .7rem 3rem;
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      cursor: pointer;
+      border-radius: 4px;
+      text-transform: uppercase;
+      transition: all .2s;
+      box-shadow: 0 0 18px rgba(42,245,184,.25);
+    }
+    .btn:hover {
+      background: var(--accent);
+      color: #05050a;
+      box-shadow: 0 0 36px rgba(42,245,184,.6);
+    }
+    .hint { margin-top: 1.2rem; font-size: .7rem; letter-spacing: .15em; opacity: .35; }
+
+    /* ── Game Over Screen ────────────────────────────── */
+    #gameOverScreen { background: rgba(5,5,10,.9); }
+    .over-title {
+      font-family: var(--display);
+      font-size: clamp(3rem, 8vw, 6rem);
+      color: var(--accent2);
+      text-shadow: 0 0 30px var(--accent2);
+      letter-spacing: .15em;
+    }
+    .over-stats {
+      margin: 1.6rem 0 2.4rem;
+      text-align: center;
+      line-height: 2;
+      font-size: .9rem;
+      opacity: .8;
+    }
+    .over-stats span { color: var(--accent); font-size: 1.2rem; }
+
+    /* ── Game Canvas Area ────────────────────────────── */
+    #gameWrap {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HUD ─────────────────────────────────────────── */
+    #hud {
+      width: 100%; max-width: 520px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: .8rem 1rem .4rem;
+      z-index: 10;
+    }
+    .hud-block { display: flex; flex-direction: column; }
+    .hud-label { font-size: .58rem; letter-spacing: .3em; opacity: .4; text-transform: uppercase; }
+    .hud-value {
+      font-family: var(--display);
+      font-size: 2.2rem;
+      letter-spacing: .06em;
+      line-height: 1;
+      transition: color .15s;
+    }
+    #scoreVal  { color: var(--accent); }
+    #streakVal { color: var(--accent3); }
+    #multVal   { font-size: 1rem; opacity: .7; color: var(--accent3); }
+
+    /* ── Lane Container ──────────────────────────────── */
+    #laneWrap {
+      position: relative;
+      flex: 1;
+      width: 100%; max-width: 520px;
+      display: flex;
+    }
+
+    .lane {
+      flex: 1;
+      position: relative;
+      background: var(--lane-bg);
+      border-left: 1px solid var(--lane-line);
+      overflow: hidden;
+      transition: background .1s;
+    }
+    .lane:last-child { border-right: 1px solid var(--lane-line); }
+    .lane.flash-good { background: rgba(42,245,184,.12); }
+    .lane.flash-bad  { background: rgba(245,42,124,.18); }
+
+    /* Lane key labels at bottom */
+    .lane-key {
+      position: absolute;
+      bottom: 64px;
+      left: 50%; transform: translateX(-50%);
+      font-family: var(--display);
+      font-size: 1.3rem;
+      opacity: .2;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Hit line */
+    #hitLine {
+      position: absolute;
+      bottom: 80px;
+      left: 0; right: 0;
+      height: 3px;
+      background: var(--hit-line);
+      box-shadow: 0 0 14px var(--hit-line), 0 0 30px rgba(42,245,184,.3);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    /* ── Notes ───────────────────────────────────────── */
+    .note {
+      position: absolute;
+      left: 4px; right: 4px;
+      height: 48px;
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--display);
+      font-size: 1.2rem;
+      letter-spacing: .08em;
+      pointer-events: none;
+      transition: opacity .12s;
+      z-index: 3;
+    }
+    .note[data-lane="0"] { background: linear-gradient(180deg, rgba(42,245,184,.9), rgba(42,245,184,.6)); color: #05050a; box-shadow: 0 0 16px rgba(42,245,184,.5); }
+    .note[data-lane="1"] { background: linear-gradient(180deg, rgba(42,184,245,.9), rgba(42,184,245,.6)); color: #05050a; box-shadow: 0 0 16px rgba(42,184,245,.5); }
+    .note[data-lane="2"] { background: linear-gradient(180deg, rgba(245,42,124,.9), rgba(245,42,124,.6)); color: #fff;    box-shadow: 0 0 16px rgba(245,42,124,.5); }
+    .note[data-lane="3"] { background: linear-gradient(180deg, rgba(245,193,42,.9), rgba(245,193,42,.6)); color: #05050a; box-shadow: 0 0 16px rgba(245,193,42,.5); }
+
+    .note.hit {
+      animation: noteHit .25s ease-out forwards;
+    }
+    .note.miss {
+      animation: noteMiss .3s ease-out forwards;
+    }
+
+    /* ── Hit Particles ───────────────────────────────── */
+    .particle {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 6;
+      animation: particleFly .5s ease-out forwards;
+    }
+
+    /* ── Combo burst ─────────────────────────────────── */
+    .combo-burst {
+      position: absolute;
+      left: 50%; transform: translateX(-50%);
+      bottom: 110px;
+      font-family: var(--display);
+      font-size: 1.4rem;
+      letter-spacing: .1em;
+      color: var(--accent3);
+      text-shadow: 0 0 12px var(--accent3);
+      pointer-events: none;
+      z-index: 8;
+      animation: burstPop .6s ease-out forwards;
+      white-space: nowrap;
+    }
+
+    /* ── Miss flash overlay ──────────────────────────── */
+    #missFlash {
+      position: fixed; inset: 0;
+      background: rgba(245,42,124,.12);
+      pointer-events: none;
+      z-index: 90;
+      opacity: 0;
+      transition: opacity .05s;
+    }
+    #missFlash.show { opacity: 1; }
+
+    /* ── Animations ──────────────────────────────────── */
+    @keyframes pulse {
+      0%, 100% { text-shadow: 0 0 20px var(--accent), 0 0 60px rgba(42,245,184,.4); }
+      50%       { text-shadow: 0 0 40px var(--accent), 0 0 100px rgba(42,245,184,.7), 0 0 160px rgba(42,245,184,.3); }
+    }
+    @keyframes noteHit {
+      0%   { transform: scaleY(1)   scaleX(1);   opacity: 1; }
+      60%  { transform: scaleY(.3)  scaleX(1.4); opacity: .8; }
+      100% { transform: scaleY(0)   scaleX(1.8); opacity: 0; }
+    }
+    @keyframes noteMiss {
+      0%   { opacity: 1; transform: translateX(0); }
+      30%  { transform: translateX(-6px); }
+      60%  { transform: translateX(6px); }
+      100% { opacity: 0; transform: translateX(0); }
+    }
+    @keyframes particleFly {
+      0%   { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+    }
+    @keyframes burstPop {
+      0%   { opacity: 0; transform: translateX(-50%) scale(.5); }
+      30%  { opacity: 1; transform: translateX(-50%) scale(1.2); }
+      70%  { opacity: 1; transform: translateX(-50%) scale(1);   }
+      100% { opacity: 0; transform: translateX(-50%) scale(.9) translateY(-20px); }
+    }
+    @keyframes lanePress {
+      0%  { background: rgba(255,255,255,.06); }
+      100%{ background: transparent; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Screens ──────────────────────────────────────── -->
+  <div id="startScreen" class="screen">
+    <div class="logo">CONSECUTIVE</div>
+    <div class="subtitle">Rhythm · Precision · Streak</div>
+
+    <div class="key-legend">
+      <div class="key-box"><div class="key-cap d">D</div><div class="key-label">LANE 1</div></div>
+      <div class="key-box"><div class="key-cap f">F</div><div class="key-label">LANE 2</div></div>
+      <div class="key-box"><div class="key-cap j">J</div><div class="key-label">LANE 3</div></div>
+      <div class="key-box"><div class="key-cap k">K</div><div class="key-label">LANE 4</div></div>
+    </div>
+
+    <button class="btn" id="startBtn">START GAME</button>
+    <div class="hint">PRESS D · F · J · K WHEN NOTES HIT THE LINE</div>
+  </div>
+
+  <div id="gameOverScreen" class="screen hidden">
+    <div class="over-title">STREAK BROKEN</div>
+    <div class="over-stats">
+      SCORE &nbsp;&nbsp;<span id="finalScore">0</span><br>
+      BEST STREAK &nbsp;&nbsp;<span id="finalStreak">0</span><br>
+      MAX MULTIPLIER &nbsp;&nbsp;<span id="finalMult">1×</span>
+    </div>
+    <button class="btn" id="restartBtn">TRY AGAIN</button>
+  </div>
+
+  <!-- ── Game ─────────────────────────────────────────── -->
+  <div id="gameWrap">
+    <div id="hud">
+      <div class="hud-block">
+        <div class="hud-label">SCORE</div>
+        <div class="hud-value" id="scoreVal">0</div>
+      </div>
+      <div class="hud-block" style="text-align:center">
+        <div class="hud-label">STREAK</div>
+        <div class="hud-value" id="streakVal">0</div>
+        <div id="multVal">1×</div>
+      </div>
+      <div class="hud-block" style="text-align:right">
+        <div class="hud-label">BEST</div>
+        <div class="hud-value" id="bestVal">0</div>
+      </div>
+    </div>
+
+    <div id="laneWrap">
+      <!-- Lanes injected by JS -->
+      <div id="hitLine"></div>
+    </div>
+  </div>
+
+  <div id="missFlash"></div>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+  /* ════════════════════════════════════════════════════════
+     CONFIG
+  ════════════════════════════════════════════════════════ */
+  const CONFIG = {
+    LANES: ['D','F','J','K'],
+    NOTE_HEIGHT: 48,          // px
+    HIT_LINE_BOTTOM: 80,      // px from bottom of laneWrap
+    HIT_WINDOW: 52,           // ±px around hit line centre = acceptable hit
+    BASE_SPEED: 280,          // px/sec
+    SPEED_INCREMENT: 12,      // px/sec added every 8 notes
+    BASE_INTERVAL: 900,       // ms between spawns
+    MIN_INTERVAL: 320,        // fastest spawn rate
+    POINTS_PER_HIT: 100,
+    MISS_PENALTY: 0,          // no point deduction, just breaks streak
+  };
+
+  /* ════════════════════════════════════════════════════════
+     AUDIO — tiny Web Audio synth, no files needed
+  ════════════════════════════════════════════════════════ */
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+
+  function ensureAudio() {
+    if (!audioCtx) audioCtx = new AudioCtx();
+  }
+
+  /**
+   * Play a short percussive blip.
+   * @param {number} freq  - base frequency
+   * @param {'hit'|'miss'} type
+   */
+  function playSound(type) {
+    ensureAudio();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'hit') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.exponentialRampToValueAtTime(440, now + .08);
+      gain.gain.setValueAtTime(.18, now);
+      gain.gain.exponentialRampToValueAtTime(.001, now + .1);
+      osc.start(now);
+      osc.stop(now + .12);
+    } else if (type === 'combo') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1320, now);
+      osc.frequency.exponentialRampToValueAtTime(1760, now + .12);
+      gain.gain.setValueAtTime(.14, now);
+      gain.gain.exponentialRampToValueAtTime(.001, now + .18);
+      osc.start(now);
+      osc.stop(now + .2);
+    } else {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(60, now + .15);
+      gain.gain.setValueAtTime(.22, now);
+      gain.gain.exponentialRampToValueAtTime(.001, now + .2);
+      osc.start(now);
+      osc.stop(now + .22);
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════
+     STATE
+  ════════════════════════════════════════════════════════ */
+  const state = {
+    running: false,
+    score: 0,
+    streak: 0,
+    bestStreak: 0,
+    maxMult: 1,
+    totalNotes: 0,       // for speed scaling
+    speed: CONFIG.BASE_SPEED,
+    spawnInterval: CONFIG.BASE_INTERVAL,
+    lastSpawn: 0,        // timestamp
+    notes: [],           // active note objects
+    bestScore: 0,
+  };
+
+  /* ════════════════════════════════════════════════════════
+     DOM REFS
+  ════════════════════════════════════════════════════════ */
+  const startScreen    = document.getElementById('startScreen');
+  const gameOverScreen = document.getElementById('gameOverScreen');
+  const startBtn       = document.getElementById('startBtn');
+  const restartBtn     = document.getElementById('restartBtn');
+  const laneWrap       = document.getElementById('laneWrap');
+  const scoreVal       = document.getElementById('scoreVal');
+  const streakVal      = document.getElementById('streakVal');
+  const multVal        = document.getElementById('multVal');
+  const bestVal        = document.getElementById('bestVal');
+  const finalScore     = document.getElementById('finalScore');
+  const finalStreak    = document.getElementById('finalStreak');
+  const finalMult      = document.getElementById('finalMult');
+  const missFlash      = document.getElementById('missFlash');
+
+  /* Lane elements — built once */
+  const laneEls = [];
+
+  function buildLanes() {
+    // clear previous
+    laneEls.forEach(l => l.remove());
+    laneEls.length = 0;
+
+    CONFIG.LANES.forEach((key, i) => {
+      const el = document.createElement('div');
+      el.className = 'lane';
+      el.dataset.lane = i;
+
+      const label = document.createElement('div');
+      label.className = 'lane-key';
+      label.textContent = key;
+      el.appendChild(label);
+
+      laneWrap.insertBefore(el, document.getElementById('hitLine'));
+      laneEls.push(el);
+    });
+  }
+
+  /* ════════════════════════════════════════════════════════
+     NOTE PATTERNS — adds variety to spawning
+  ════════════════════════════════════════════════════════ */
+  const PATTERNS = [
+    [0],[1],[2],[3],           // singles
+    [0,1],[1,2],[2,3],[3,2],   // pairs
+    [0,1,2],[1,2,3],           // triples
+    [0,1,2,3],                  // full run
+    [0,0,1,2],[1,1,2,3],       // repeated start
+  ];
+
+  let patternQueue = [];
+
+  function fillQueue() {
+    // pick a random pattern and enqueue its lanes
+    const pat = PATTERNS[Math.floor(Math.random() * PATTERNS.length)];
+    patternQueue.push(...pat);
+  }
+
+  function nextLane() {
+    if (patternQueue.length === 0) fillQueue();
+    return patternQueue.shift();
+  }
+
+  /* ════════════════════════════════════════════════════════
+     SPAWN NOTE
+  ════════════════════════════════════════════════════════ */
+  function spawnNote(timestamp) {
+    const lane = nextLane();
+    const el   = document.createElement('div');
+    el.className  = 'note';
+    el.dataset.lane = lane;
+    el.textContent  = CONFIG.LANES[lane];
+
+    // start above the lane (top = -NOTE_HEIGHT)
+    el.style.top = `-${CONFIG.NOTE_HEIGHT}px`;
+    laneEls[lane].appendChild(el);
+
+    state.notes.push({
+      lane,
+      el,
+      y: -CONFIG.NOTE_HEIGHT,   // current top px (relative to lane)
+      alive: true,
+      hit: false,
+    });
+  }
+
+  /* ════════════════════════════════════════════════════════
+     MULTIPLIER
+  ════════════════════════════════════════════════════════ */
+  function getMultiplier() {
+    return 1 + Math.floor(state.streak / 10);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     UPDATE HUD
+  ════════════════════════════════════════════════════════ */
+  function updateHUD() {
+    const mult = getMultiplier();
+    scoreVal.textContent  = state.score;
+    streakVal.textContent = state.streak;
+    multVal.textContent   = `${mult}×`;
+    bestVal.textContent   = Math.max(state.score, state.bestScore);
+    if (state.score > state.bestScore) bestVal.style.color = 'var(--accent)';
+  }
+
+  /* ════════════════════════════════════════════════════════
+     PARTICLES
+  ════════════════════════════════════════════════════════ */
+  function spawnParticles(laneEl, yPx) {
+    const colors = ['var(--note-d)','var(--note-f)','var(--note-j)','var(--note-k)','#fff'];
+    for (let i = 0; i < 10; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 30 + Math.random() * 40;
+      p.style.cssText = `
+        left: ${laneEl.offsetWidth/2}px;
+        top:  ${yPx}px;
+        background: ${colors[Math.floor(Math.random()*colors.length)]};
+        --tx: ${Math.cos(angle)*dist}px;
+        --ty: ${Math.sin(angle)*dist}px;
+      `;
+      laneEl.appendChild(p);
+      setTimeout(() => p.remove(), 520);
+    }
+  }
+
+  /* ════════════════════════════════════════════════════════
+     COMBO BURST
+  ════════════════════════════════════════════════════════ */
+  function showComboBurst(text) {
+    const el = document.createElement('div');
+    el.className = 'combo-burst';
+    el.textContent = text;
+    laneWrap.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     MISS FEEDBACK
+  ════════════════════════════════════════════════════════ */
+  function triggerMiss(note) {
+    note.el.classList.add('miss');
+    setTimeout(() => note.el.remove(), 320);
+
+    // lane flash
+    laneEls[note.lane].classList.add('flash-bad');
+    setTimeout(() => laneEls[note.lane].classList.remove('flash-bad'), 160);
+
+    // screen flash
+    missFlash.classList.add('show');
+    setTimeout(() => missFlash.classList.remove('show'), 130);
+
+    // reset streak
+    state.streak = 0;
+    playSound('miss');
+    updateHUD();
+  }
+
+  /* ════════════════════════════════════════════════════════
+     HIT FEEDBACK
+  ════════════════════════════════════════════════════════ */
+  function triggerHit(note) {
+    note.hit  = true;
+    note.alive = false;
+
+    const laneEl = laneEls[note.lane];
+    const yPx    = note.y + CONFIG.NOTE_HEIGHT / 2;
+
+    note.el.classList.add('hit');
+    setTimeout(() => note.el.remove(), 280);
+
+    // particles
+    spawnParticles(laneEl, yPx);
+
+    // lane flash
+    laneEls[note.lane].classList.add('flash-good');
+    setTimeout(() => laneEls[note.lane].classList.remove('flash-good'), 100);
+
+    // scoring
+    state.streak++;
+    state.totalNotes++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+    const mult = getMultiplier();
+    if (mult > state.maxMult) state.maxMult = mult;
+
+    state.score += CONFIG.POINTS_PER_HIT * mult;
+
+    // sound
+    if (state.streak > 0 && state.streak % 10 === 0) {
+      playSound('combo');
+      showComboBurst(`${state.streak} COMBO  ${mult}×`);
+    } else {
+      playSound('hit');
+    }
+
+    // speed scaling every 8 successful notes
+    if (state.totalNotes % 8 === 0) {
+      state.speed = Math.min(state.speed + CONFIG.SPEED_INCREMENT, 700);
+      state.spawnInterval = Math.max(
+        state.spawnInterval - 35,
+        CONFIG.MIN_INTERVAL
+      );
+    }
+
+    updateHUD();
+  }
+
+  /* ════════════════════════════════════════════════════════
+     KEY HANDLER
+  ════════════════════════════════════════════════════════ */
+  const KEY_MAP = { d:0, f:1, j:2, k:3 };
+
+  document.addEventListener('keydown', e => {
+    if (!state.running) return;
+    ensureAudio();
+
+    const lane = KEY_MAP[e.key.toLowerCase()];
+    if (lane === undefined) return;
+    e.preventDefault();
+
+    // animate key cap on start screen (purely cosmetic)
+    const hitLineBottom  = CONFIG.HIT_LINE_BOTTOM;
+    const laneEl         = laneEls[lane];
+    const laneHeight     = laneEl.offsetHeight;
+    const hitLineTop     = laneHeight - hitLineBottom; // px from top of laneEl
+
+    // find the closest note in this lane within the hit window
+    let   closest  = null;
+    let   minDist  = Infinity;
+
+    for (const note of state.notes) {
+      if (!note.alive || note.hit) continue;
+      if (note.lane !== lane) continue;
+
+      // note centre y from top of lane
+      const noteCenter = note.y + CONFIG.NOTE_HEIGHT / 2;
+      const dist = Math.abs(noteCenter - hitLineTop);
+
+      if (dist < CONFIG.HIT_WINDOW && dist < minDist) {
+        minDist  = dist;
+        closest  = note;
+      }
+    }
+
+    if (closest) {
+      triggerHit(closest);
+    } else {
+      // wrong key or no note — flash lane bad only if there's a note elsewhere
+      laneEls[lane].classList.add('flash-bad');
+      setTimeout(() => laneEls[lane].classList.remove('flash-bad'), 120);
+    }
+  });
+
+  /* ════════════════════════════════════════════════════════
+     GAME LOOP
+  ════════════════════════════════════════════════════════ */
+  let rafId = null;
+  let lastTime = 0;
+
+  function gameLoop(timestamp) {
+    if (!state.running) return;
+
+    const dt = Math.min((timestamp - lastTime) / 1000, .05); // seconds, cap at 50ms
+    lastTime = timestamp;
+
+    const laneHeight   = laneEls[0].offsetHeight;
+    const hitLineTop   = laneHeight - CONFIG.HIT_LINE_BOTTOM;
+
+    /* ── Spawn ── */
+    if (timestamp - state.lastSpawn > state.spawnInterval) {
+      spawnNote(timestamp);
+      state.lastSpawn = timestamp;
+    }
+
+    /* ── Move & cull notes ── */
+    for (let i = state.notes.length - 1; i >= 0; i--) {
+      const note = state.notes[i];
+      if (!note.alive) { state.notes.splice(i,1); continue; }
+
+      note.y += state.speed * dt;
+      note.el.style.top = `${note.y}px`;
+
+      // missed — note has scrolled past the hit zone with no hit
+      const noteCentre = note.y + CONFIG.NOTE_HEIGHT / 2;
+      if (noteCentre > hitLineTop + CONFIG.HIT_WINDOW + 10) {
+        note.alive = false;
+        triggerMiss(note);
+        state.notes.splice(i, 1);
+        continue;
+      }
+
+      // off screen bottom — clean up without penalty (already missed above)
+      if (note.y > laneHeight + 10) {
+        note.el.remove();
+        state.notes.splice(i, 1);
+      }
+    }
+
+    rafId = requestAnimationFrame(gameLoop);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     START / STOP
+  ════════════════════════════════════════════════════════ */
+  function startGame() {
+    ensureAudio();
+    buildLanes();
+
+    // reset state
+    Object.assign(state, {
+      running:       true,
+      score:         0,
+      streak:        0,
+      bestStreak:    0,
+      maxMult:       1,
+      totalNotes:    0,
+      speed:         CONFIG.BASE_SPEED,
+      spawnInterval: CONFIG.BASE_INTERVAL,
+      lastSpawn:     0,
+      notes:         [],
+    });
+
+    patternQueue.length = 0;
+
+    updateHUD();
+    startScreen.classList.add('hidden');
+    gameOverScreen.classList.add('hidden');
+
+    lastTime = performance.now();
+    rafId = requestAnimationFrame(gameLoop);
+  }
+
+  function endGame() {
+    state.running = false;
+    cancelAnimationFrame(rafId);
+
+    if (state.score > state.bestScore) state.bestScore = state.score;
+
+    finalScore.textContent  = state.score;
+    finalStreak.textContent = state.bestStreak;
+    finalMult.textContent   = `${state.maxMult}×`;
+
+    // remove all note elements
+    state.notes.forEach(n => n.el.remove());
+    state.notes.length = 0;
+
+    gameOverScreen.classList.remove('hidden');
+  }
+
+  /* ════════════════════════════════════════════════════════
+     BUTTON LISTENERS
+  ════════════════════════════════════════════════════════ */
+  startBtn.addEventListener('click', startGame);
+  restartBtn.addEventListener('click', startGame);
+
+  /* Initial lane build for layout */
+  buildLanes();
+  </script>
+</body>
+</html>
