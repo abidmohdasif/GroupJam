@@ -2,44 +2,124 @@ const config = {
     type: Phaser.AUTO,
     width: 400,
     height: 600,
+    parent: 'game-container',
     physics: {
         default: 'matter',
-        matter: { gravity: { y: 1 }, debug: false }
+        matter: {
+            gravity: { y: 1 },
+            debug: false // Set to true to see hitboxes
+        }
     },
-    scene: { preload: preload, create: create, update: update }
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
 };
 
-let game = new Phaser.Game(config);
+const game = new Phaser.Game(config);
+
 let currentBlock;
+let blocks = [];
 let streak = 0;
-let speed = 4;
+let isGameOver = false;
+let moveSpeed = 3;
+let direction = 1; // 1 for right, -1 for left
+let towerHeight = 0;
+
+function preload() {
+    // We are using generated graphics, so no external assets needed for now
+}
 
 function create() {
-    // Add a static ground
-    this.matter.add.rectangle(200, 580, 400, 40, { isStatic: true });
-    
-    // UI Elements
-    this.scoreText = this.add.text(10, 10, 'Streak: 0', { fontSize: '24px', fill: '#fff' });
-    
+    // 1. Create the Ground
+    const ground = this.matter.add.rectangle(200, 580, 400, 40, { isStatic: true });
+    this.add.rectangle(200, 580, 400, 40, 0x34495e);
+
+    // 2. Initial UI update
+    this.scoreLabel = document.getElementById('score');
+    this.heightLabel = document.getElementById('height');
+
+    // 3. Spawn the first block
     spawnBlock.call(this);
 
+    // 4. Input Listener
     this.input.on('pointerdown', () => {
-        if (currentBlock) {
-            currentBlock.setIgnoreGravity(false);
-            currentBlock = null;
-            
-            // Logic to wait for landing, then spawn next
-            this.time.delayedCall(1000, () => {
-                streak++;
-                speed += 0.5; // Difficulty scaling
-                this.scoreText.setText('Streak: ' + streak);
-                spawnBlock.call(this);
-            });
+        if (isGameOver) {
+            location.reload(); // Quick restart
+            return;
         }
+        dropBlock.call(this);
     });
 }
 
 function spawnBlock() {
-    currentBlock = this.matter.add.rectangle(200, 50, 60, 30);
-    currentBlock.setIgnoreGravity(true);
+    // Position the new block at the top
+    const yPos = 100;
+    currentBlock = this.matter.add.rectangle(200, yPos, 80, 30, {
+        friction: 0.5,
+        restitution: 0.1
+    });
+    
+    // Disable gravity until player clicks
+    currentBlock.isStatic = true;
+    
+    // Visual representation
+    currentBlock.view = this.add.rectangle(200, yPos, 80, 30, 0x3498db);
+}
+
+function dropBlock() {
+    currentBlock.isStatic = false; // Enable physics
+    const droppedBlock = currentBlock;
+    blocks.push(droppedBlock);
+    currentBlock = null;
+
+    // Wait for the block to settle before spawning next or ending game
+    this.time.delayedCall(1500, () => {
+        if (droppedBlock.position.y > 600 || Math.abs(droppedBlock.angle) > 1) {
+            handleGameOver.call(this);
+        } else {
+            streak++;
+            moveSpeed += 0.3; // Scaling difficulty
+            this.scoreLabel.innerText = `Streak: ${streak}`;
+            this.heightLabel.innerText = `Height: ${blocks.length}m`;
+            
+            // Camera effect: Move up as tower grows
+            if (blocks.length > 5) {
+                this.cameras.main.pan(200, 300 - (blocks.length * 10), 500);
+            }
+            
+            spawnBlock.call(this);
+        }
+    });
+}
+
+function update() {
+    if (currentBlock && currentBlock.isStatic) {
+        // Move block back and forth
+        currentBlock.view.x += moveSpeed * direction;
+        this.matter.body.setPosition(currentBlock, { x: currentBlock.view.x, y: currentBlock.position.y });
+
+        if (currentBlock.view.x > 350 || currentBlock.view.x < 50) {
+            direction *= -1; // Reverse direction
+        }
+    }
+
+    // Sync physical bodies with visual rectangles
+    blocks.forEach(b => {
+        if (b.view) {
+            b.view.x = b.position.x;
+            b.view.y = b.position.y;
+            b.view.rotation = b.angle;
+        }
+    });
+}
+
+function handleGameOver() {
+    isGameOver = true;
+    this.add.text(100, 300, 'GAME OVER\nTap to Restart', { 
+        fontSize: '32px', 
+        fill: '#e74c3c', 
+        align: 'center' 
+    });
 }
