@@ -245,6 +245,98 @@
     from { transform: translateY(-100%); opacity: 0; }
     to   { transform: translateY(0);     opacity: 1; }
   }
+
+  /* ── Streak unlock pop-up modal ── */
+  #streakModal {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 500;
+    align-items: center; justify-content: center;
+    background: rgba(5,5,15,0.88);
+    backdrop-filter: blur(8px);
+    animation: modalFadeIn .35s ease-out;
+  }
+  #streakModal.show { display: flex; }
+  .modal-box {
+    position: relative;
+    background: linear-gradient(160deg, #0d0d22, #05050a);
+    border: 2px solid #39ff14;
+    border-radius: 10px;
+    padding: 44px 48px 40px;
+    text-align: center;
+    max-width: 380px; width: 88%;
+    box-shadow: 0 0 60px rgba(57,255,20,0.35), 0 0 120px rgba(57,255,20,0.12);
+    animation: modalPop .42s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .modal-icon {
+    font-size: 52px; margin-bottom: 10px;
+    animation: iconBounce .5s ease-out;
+  }
+  .modal-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem; font-weight: 900;
+    letter-spacing: .12em;
+    color: #39ff14;
+    text-shadow: 0 0 20px #39ff14, 0 0 40px rgba(57,255,20,0.5);
+    margin-bottom: 4px; line-height: 1.2;
+  }
+  .modal-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: .68rem; letter-spacing: .25em;
+    color: rgba(255,255,255,.35); margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .modal-stat {
+    display: inline-block;
+    background: rgba(57,255,20,0.08);
+    border: 1px solid rgba(57,255,20,0.25);
+    border-radius: 4px; padding: 7px 18px; margin-bottom: 24px;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem; letter-spacing: .1em;
+    color: #ffe600; text-shadow: 0 0 10px #ffe600;
+  }
+  .modal-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(57,255,20,0.3), transparent);
+    margin-bottom: 20px;
+  }
+  .modal-question {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: .68rem; letter-spacing: .2em;
+    color: rgba(255,255,255,.3); margin-bottom: 14px; text-transform: uppercase;
+  }
+  .modal-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .modal-btn-arcade {
+    font-family: 'Orbitron', monospace; font-size: .85rem; font-weight: 700;
+    letter-spacing: .12em; padding: .65rem 1.6rem;
+    background: #39ff14; color: #05050a;
+    border: none; border-radius: 4px; cursor: pointer;
+    box-shadow: 0 0 24px rgba(57,255,20,0.5), 4px 4px 0 rgba(0,0,0,0.4);
+    transition: all .15s;
+  }
+  .modal-btn-arcade:hover {
+    transform: translate(-2px,-2px);
+    box-shadow: 0 0 40px rgba(57,255,20,0.8), 6px 6px 0 rgba(0,0,0,0.4);
+  }
+  .modal-btn-stay {
+    font-family: 'Orbitron', monospace; font-size: .85rem; font-weight: 700;
+    letter-spacing: .12em; padding: .65rem 1.6rem;
+    background: transparent; color: rgba(255,255,255,.35);
+    border: 2px solid rgba(255,255,255,.15); border-radius: 4px; cursor: pointer;
+    transition: all .15s;
+  }
+  .modal-btn-stay:hover { color: #00ffcc; border-color: #00ffcc; box-shadow: 0 0 14px rgba(0,255,200,.3); }
+  .modal-spark {
+    position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    pointer-events: none; animation: sparkFloat 2s ease-in-out infinite;
+  }
+  @keyframes modalFadeIn { from { opacity: 0; }                    to { opacity: 1; } }
+  @keyframes modalPop    { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes iconBounce  { from { transform: scale(0.4) rotate(-15deg); } to { transform: scale(1) rotate(0deg); } }
+  @keyframes sparkFloat  {
+    0%,100% { transform: translate(0,0) scale(1);              opacity: 1; }
+    50%     { transform: translate(var(--sx),var(--sy)) scale(1.5); opacity: 0.5; }
+  }
 </style>
 </head>
 <body>
@@ -310,6 +402,22 @@
         <button class="play-btn" id="playBtn">▶ PLAY</button>
         <button class="play-btn" id="arcadeBtn" style="background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02)); border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4); display:none;">← ARCADE</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Streak unlock pop-up ── -->
+<div id="streakModal">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-icon">🏗️</div>
+    <div class="modal-title">STREAK HIT!</div>
+    <div class="modal-sub">Stage 3 — Finale Unlocked</div>
+    <div class="modal-stat" id="modalStreakStat">8 STREAK</div>
+    <div class="modal-divider"></div>
+    <div class="modal-question">What do you want to do?</div>
+    <div class="modal-btns">
+      <button class="modal-btn-arcade" id="modalArcadeBtn">⚡ BACK TO ARCADE</button>
+      <button class="modal-btn-stay"   id="modalStayBtn">KEEP STACKING</button>
     </div>
   </div>
 </div>
@@ -580,21 +688,8 @@ function landBlock(topBlock) {
     unlockFired = true;
     localStorage.setItem('gj_unlocked', '3');
     localStorage.setItem('gj_stack_streak', String(streak));
-    const banner = document.getElementById('unlockBanner');
-    if (banner) { banner.style.display = 'block'; setTimeout(() => banner.style.display = 'none', 4000); }
-    // Play unlock fanfare via Web Audio
-    try {
-      const uc = new (window.AudioContext || window.webkitAudioContext)();
-      [0, 0.12, 0.24].forEach((delay, i) => {
-        const o = uc.createOscillator(), g = uc.createGain();
-        o.connect(g); g.connect(uc.destination);
-        o.type = 'sine';
-        o.frequency.setValueAtTime([880,1100,1320][i], uc.currentTime + delay);
-        g.gain.setValueAtTime(.15, uc.currentTime + delay);
-        g.gain.exponentialRampToValueAtTime(.001, uc.currentTime + delay + .2);
-        o.start(uc.currentTime + delay); o.stop(uc.currentTime + delay + .22);
-      });
-    } catch(e) {}
+    playUnlockFanfare();
+    showUnlockModal(streak);
   }
 
   // Milestone toast
@@ -963,6 +1058,60 @@ playBtn.addEventListener('click', () => {
 
 document.getElementById('arcadeBtn').addEventListener('click', () => {
   window.location.href = 'index.html';
+});
+
+// ── Streak modal ───────────────────────────────────────────────────────────
+function playUnlockFanfare() {
+  try {
+    const uc = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.12, 0.24].forEach((delay, i) => {
+      const o = uc.createOscillator(), g = uc.createGain();
+      o.connect(g); g.connect(uc.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime([880, 1100, 1320][i], uc.currentTime + delay);
+      g.gain.setValueAtTime(.15, uc.currentTime + delay);
+      g.gain.exponentialRampToValueAtTime(.001, uc.currentTime + delay + .2);
+      o.start(uc.currentTime + delay); o.stop(uc.currentTime + delay + .22);
+    });
+  } catch(e) {}
+}
+
+function showUnlockModal(streakCount) {
+  const modal = document.getElementById('streakModal');
+  const stat  = document.getElementById('modalStreakStat');
+  const box   = document.getElementById('modalBox');
+  if (!modal) return;
+
+  stat.textContent = streakCount + ' STREAK';
+  modal.classList.add('show');
+
+  // Sparkles
+  const sparkColors = ['#39ff14','#00ffcc','#ffe600','#ff2d78','#fff'];
+  for (let i = 0; i < 14; i++) {
+    const sp = document.createElement('div');
+    sp.className = 'modal-spark';
+    const angle = (i / 14) * Math.PI * 2;
+    const r = 150 + Math.random() * 70;
+    sp.style.cssText = `
+      left: calc(50% + ${Math.cos(angle) * r}px);
+      top:  calc(50% + ${Math.sin(angle) * r}px);
+      background: ${sparkColors[i % sparkColors.length]};
+      box-shadow: 0 0 6px ${sparkColors[i % sparkColors.length]};
+      --sx: ${(Math.random()-0.5)*28}px;
+      --sy: ${(Math.random()-0.5)*28}px;
+      animation-delay: ${Math.random() * 0.8}s;
+    `;
+    box.appendChild(sp);
+  }
+}
+
+document.getElementById('modalArcadeBtn').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
+document.getElementById('modalStayBtn').addEventListener('click', () => {
+  const modal = document.getElementById('streakModal');
+  modal.classList.remove('show');
+  document.querySelectorAll('.modal-spark').forEach(s => s.remove());
 });
 
 // ── Start ──────────────────────────────────────────────────────────────────

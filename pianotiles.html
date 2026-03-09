@@ -177,6 +177,123 @@
       to   { transform: translateY(0);     opacity: 1; }
     }
 
+    /* ── Streak unlock pop-up modal ── */
+    #streakModal {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 500;
+      align-items: center; justify-content: center;
+      background: rgba(5,5,10,0.85);
+      backdrop-filter: blur(6px);
+      animation: modalFadeIn .35s ease-out;
+    }
+    #streakModal.show { display: flex; }
+    .modal-box {
+      position: relative;
+      background: linear-gradient(160deg, #0d0d22, #05050a);
+      border: 2px solid #39ff14;
+      border-radius: 10px;
+      padding: 44px 48px 40px;
+      text-align: center;
+      max-width: 420px; width: 90%;
+      box-shadow: 0 0 60px rgba(57,255,20,0.3), 0 0 120px rgba(57,255,20,0.1);
+      animation: modalPop .4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal-icon {
+      font-size: 52px;
+      margin-bottom: 12px;
+      animation: iconSpin .6s ease-out;
+    }
+    .modal-title {
+      font-family: var(--display);
+      font-size: 2.8rem;
+      letter-spacing: .15em;
+      color: #39ff14;
+      text-shadow: 0 0 20px #39ff14, 0 0 40px rgba(57,255,20,0.5);
+      margin-bottom: 6px;
+      line-height: 1.1;
+    }
+    .modal-sub {
+      font-size: .75rem;
+      letter-spacing: .25em;
+      color: rgba(255,255,255,.4);
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+    .modal-stat {
+      display: inline-block;
+      background: rgba(57,255,20,0.08);
+      border: 1px solid rgba(57,255,20,0.25);
+      border-radius: 4px;
+      padding: 8px 20px;
+      margin-bottom: 28px;
+      font-family: var(--display);
+      font-size: 1.3rem;
+      letter-spacing: .1em;
+      color: var(--accent3);
+      text-shadow: 0 0 10px var(--accent3);
+    }
+    .modal-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(57,255,20,0.3), transparent);
+      margin-bottom: 24px;
+    }
+    .modal-question {
+      font-size: .72rem;
+      letter-spacing: .2em;
+      color: rgba(255,255,255,.35);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .modal-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .modal-btn-arcade {
+      font-family: var(--display);
+      font-size: 1.2rem;
+      letter-spacing: .15em;
+      padding: .65rem 1.8rem;
+      background: #39ff14;
+      color: #05050a;
+      border: none; border-radius: 4px; cursor: pointer;
+      box-shadow: 0 0 24px rgba(57,255,20,0.5), 4px 4px 0 rgba(0,0,0,0.4);
+      transition: all .15s;
+    }
+    .modal-btn-arcade:hover {
+      transform: translate(-2px,-2px);
+      box-shadow: 0 0 40px rgba(57,255,20,0.8), 6px 6px 0 rgba(0,0,0,0.4);
+    }
+    .modal-btn-stay {
+      font-family: var(--display);
+      font-size: 1.2rem;
+      letter-spacing: .15em;
+      padding: .65rem 1.8rem;
+      background: transparent;
+      color: rgba(255,255,255,.4);
+      border: 2px solid rgba(255,255,255,.15);
+      border-radius: 4px; cursor: pointer;
+      transition: all .15s;
+    }
+    .modal-btn-stay:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(42,245,184,.3);
+    }
+    /* Particle sparkles around modal */
+    .modal-spark {
+      position: absolute;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: sparkFloat 2s ease-in-out infinite;
+    }
+    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalPop    { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes iconSpin    { from { transform: rotate(-20deg) scale(0.5); } to { transform: rotate(0deg) scale(1); } }
+    @keyframes sparkFloat  {
+      0%   { transform: translate(0,0) scale(1);   opacity: 1; }
+      50%  { transform: translate(var(--sx),var(--sy)) scale(1.4); opacity: 0.6; }
+      100% { transform: translate(0,0) scale(1);   opacity: 1; }
+    }
+
     #laneWrap { position: relative; flex: 1; width: 100%; max-width: 520px; display: flex; }
     .lane {
       flex: 1; position: relative; background: var(--lane-bg);
@@ -292,6 +409,22 @@
   </div>
 
   <div id="missFlash"></div>
+
+  <!-- ── Streak unlock pop-up ── -->
+  <div id="streakModal">
+    <div class="modal-box" id="modalBox">
+      <div class="modal-icon">🎉</div>
+      <div class="modal-title">UNLOCKED!</div>
+      <div class="modal-sub">Stage 2 — Stack Builder</div>
+      <div class="modal-stat" id="modalComboStat">10 COMBO</div>
+      <div class="modal-divider"></div>
+      <div class="modal-question">What do you want to do?</div>
+      <div class="modal-btns">
+        <button class="modal-btn-arcade" id="modalArcadeBtn">⚡ BACK TO ARCADE</button>
+        <button class="modal-btn-stay"   id="modalStayBtn">KEEP PLAYING</button>
+      </div>
+    </div>
+  </div>
 
   <script>
   /* ── CONFIG ── */
@@ -436,14 +569,40 @@
 
     // Save to localStorage so the hub picks it up
     localStorage.setItem('gj_unlocked', '2');
-
-    // Also set a flag so the hub knows it was earned this session
     localStorage.setItem('gj_piano_combo', String(combo));
 
-    // Show in-game banner
-    comboUnlockBanner.classList.add('show');
     playSound('unlock');
-    setTimeout(() => comboUnlockBanner.classList.remove('show'), 4000);
+
+    // Show the pop-up modal
+    showUnlockModal(combo);
+  }
+
+  function showUnlockModal(combo) {
+    const modal     = document.getElementById('streakModal');
+    const comboStat = document.getElementById('modalComboStat');
+    const box       = document.getElementById('modalBox');
+
+    comboStat.textContent = combo + ' COMBO';
+    modal.classList.add('show');
+
+    // Spawn sparkles around the box
+    const sparkColors = ['#39ff14','#00f5ff','#ffe600','#ff2d78','#fff'];
+    for (let i = 0; i < 12; i++) {
+      const sp = document.createElement('div');
+      sp.className = 'modal-spark';
+      const angle = (i / 12) * Math.PI * 2;
+      const r = 160 + Math.random() * 60;
+      sp.style.cssText = `
+        left: calc(50% + ${Math.cos(angle) * r}px);
+        top:  calc(50% + ${Math.sin(angle) * r}px);
+        background: ${sparkColors[i % sparkColors.length]};
+        box-shadow: 0 0 6px ${sparkColors[i % sparkColors.length]};
+        --sx: ${(Math.random()-0.5)*30}px;
+        --sy: ${(Math.random()-0.5)*30}px;
+        animation-delay: ${Math.random()*1}s;
+      `;
+      box.appendChild(sp);
+    }
   }
 
   /* ── PARTICLES ── */
@@ -608,6 +767,16 @@
   startBtn.addEventListener('click', startGame);
   restartBtn.addEventListener('click', startGame);
   arcadeBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+
+  // ── Modal button handlers ──
+  document.getElementById('modalArcadeBtn').addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
+  document.getElementById('modalStayBtn').addEventListener('click', () => {
+    document.getElementById('streakModal').classList.remove('show');
+    // remove sparkles so they don't pile up on re-show
+    document.querySelectorAll('.modal-spark').forEach(s => s.remove());
+  });
 
   buildLanes();
   </script>
