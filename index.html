@@ -1,18 +1,898 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stack Builder: Consecutive</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stack Builder — Consecutive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  #gameWrapper {
+    position: relative;
+    width: 420px;
+    height: 700px;
+  }
+
+  canvas {
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 0 60px rgba(0,255,200,0.15), 0 0 120px rgba(0,100,255,0.1);
+  }
+
+  #ui {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  #hud {
+    position: absolute;
+    top: 14px; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 18px;
+  }
+
+  .hud-block {
+    text-align: center;
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 6px 12px;
+    min-width: 80px;
+  }
+
+  .hud-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .hud-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 12px currentColor;
+  }
+
+  #streakDisplay {
+    position: absolute;
+    top: 90px; left: 50%; transform: translateX(-50%);
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  #streakNum {
+    font-family: 'Orbitron', monospace;
+    font-size: 48px;
+    font-weight: 900;
+    color: #00ffcc;
+    text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc88;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+
+  #streakLabel {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+
+  #multiplierBadge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b00, #ff0080);
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  #screen-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(5, 5, 20, 0.92);
+    border-radius: 8px;
+    transition: opacity 0.4s;
+    pointer-events: all;
+  }
+
+  #screen-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .screen-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: #00ffcc;
+    text-shadow: 0 0 30px #00ffcc;
+    margin-bottom: 6px;
+  }
+
+  .screen-sub {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 32px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 28px;
+  }
+
+  .stat-box {
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .stat-lbl {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 2px;
+  }
+
+  .play-btn {
+    background: linear-gradient(135deg, #00ffcc22, #0080ff22);
+    border: 1.5px solid #00ffcc;
+    color: #00ffcc;
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    padding: 14px 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    pointer-events: all;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px #00ffcc44;
+  }
+
+  .play-btn:hover {
+    background: linear-gradient(135deg, #00ffcc44, #0080ff44);
+    box-shadow: 0 0 40px #00ffcc88;
+    transform: translateY(-2px);
+  }
+
+  .milestone-toast {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    color: #ffcc00;
+    text-shadow: 0 0 30px #ffcc00;
+    letter-spacing: 3px;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  #windIndicator {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  #windIndicator.visible { opacity: 1; }
+
+  .wind-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .wind-arrow {
+    font-size: 14px;
+    color: #88ccff;
+    text-shadow: 0 0 8px #88ccff;
+    transition: transform 0.3s;
+  }
+
+  #heightMarker {
+    position: absolute;
+    right: 22px;
+    bottom: 50px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.3);
+    pointer-events: none;
+  }
+</style>
 </head>
 <body>
-    <div id="game-ui">
-        <div id="score">Streak: 0</div>
-        <div id="height">Height: 0m</div>
+<div id="gameWrapper">
+  <canvas id="c" width="420" height="700"></canvas>
+
+  <div id="ui">
+    <div id="hud">
+      <div class="hud-block">
+        <div class="hud-label">Score</div>
+        <div class="hud-value" id="scoreVal">0</div>
+      </div>
+      <div class="hud-block">
+        <div class="hud-label">Height</div>
+        <div class="hud-value" id="heightVal">0</div>
+      </div>
+      <div class="hud-block">
+        <div class="hud-label">Best</div>
+        <div class="hud-value" id="bestVal">0</div>
+      </div>
     </div>
-    <div id="game-container"></div>
-    <script src="game.js"></script>
+
+    <div id="streakDisplay">
+      <div id="streakNum">0</div>
+      <div id="streakLabel">CONSECUTIVE</div>
+      <div id="multiplierBadge">×1</div>
+    </div>
+
+    <div id="windIndicator">
+      <span class="wind-label">WIND</span>
+      <span class="wind-arrow" id="windArrow">→</span>
+      <span class="wind-label" id="windStrength">—</span>
+    </div>
+
+    <div id="heightMarker"></div>
+
+    <div class="milestone-toast" id="toast"></div>
+
+    <!-- Start / Game Over Screen -->
+    <div id="screen-overlay">
+      <div class="screen-title" id="overlayTitle">STACK BUILDER</div>
+      <div class="screen-sub" id="overlaySub">CONSECUTIVE ARCADE</div>
+      <div class="stat-row" id="statRow" style="display:none">
+        <div class="stat-box">
+          <div class="stat-val" id="finalScore">0</div>
+          <div class="stat-lbl">SCORE</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="finalStreak">0</div>
+          <div class="stat-lbl">BEST STREAK</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="finalHeight">0</div>
+          <div class="stat-lbl">HEIGHT</div>
+        </div>
+      </div>
+      <button class="play-btn" id="playBtn">▶ PLAY</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// DOM refs
+const scoreVal = document.getElementById('scoreVal');
+const heightVal = document.getElementById('heightVal');
+const bestVal = document.getElementById('bestVal');
+const streakNum = document.getElementById('streakNum');
+const multiplierBadge = document.getElementById('multiplierBadge');
+const overlayTitle = document.getElementById('overlayTitle');
+const overlaySub = document.getElementById('overlaySub');
+const screenOverlay = document.getElementById('screen-overlay');
+const statRow = document.getElementById('statRow');
+const finalScore = document.getElementById('finalScore');
+const finalStreak = document.getElementById('finalStreak');
+const finalHeight = document.getElementById('finalHeight');
+const playBtn = document.getElementById('playBtn');
+const toast = document.getElementById('toast');
+const windIndicator = document.getElementById('windIndicator');
+const windArrow = document.getElementById('windArrow');
+const windStrength = document.getElementById('windStrength');
+
+// ── Palette ────────────────────────────────────────────────────────────────
+const BLOCK_COLORS = [
+  ['#00ffcc','#00cc99'],['#0088ff','#0055cc'],['#ff6b00','#cc4400'],
+  ['#ff0080','#cc0055'],['#aaff00','#77cc00'],['#ff44ff','#cc00cc'],
+  ['#ffcc00','#cc9900'],['#00ccff','#0099cc']
+];
+
+// ── State ──────────────────────────────────────────────────────────────────
+let state = 'title'; // title | playing | dead
+let blocks = [];        // stacked blocks [{x,y,w,h,color,vel,acc,angle,angVel}]
+let movingBlock = null; // the sliding block at top
+let score = 0, streak = 0, bestStreak = 0, bestScore = 0;
+let multiplier = 1;
+let towerHeight = 0;
+let wind = 0, windTarget = 0;
+let difficulty = 0; // 0..1
+let screenShake = 0;
+let particles = [];
+let clouds = [];
+let cityBuildings = [];
+let frameCount = 0;
+let colorIndex = 0;
+let physicsAccum = 0;
+const FIXED_DT = 1/60;
+
+// ── Physics constants ──────────────────────────────────────────────────────
+const GRAVITY = 0.5;
+const FRICTION = 0.85;
+const ANG_FRICTION = 0.88;
+const BLOCK_H = 28;
+const BASE_BLOCK_W = 100;
+const MIN_BLOCK_W = 52;
+
+// ── Init scene ─────────────────────────────────────────────────────────────
+function initScene() {
+  // Clouds
+  clouds = Array.from({length:6}, (_,i) => ({
+    x: Math.random()*W, y: 40+Math.random()*120,
+    w: 60+Math.random()*80, h: 20+Math.random()*20,
+    speed: 0.2+Math.random()*0.3
+  }));
+  // City silhouette
+  cityBuildings = [];
+  let cx = 0;
+  while(cx < W+40) {
+    const bw = 18+Math.random()*40;
+    const bh = 40+Math.random()*160;
+    cityBuildings.push({x:cx, w:bw, h:bh});
+    cx += bw + 2+Math.random()*6;
+  }
+}
+
+function newGame() {
+  blocks = [];
+  particles = [];
+  score = 0; streak = 0; multiplier = 1;
+  towerHeight = 0; difficulty = 0;
+  wind = 0; windTarget = 0;
+  frameCount = 0; colorIndex = 0;
+  screenShake = 0;
+
+  // Place base platform
+  blocks.push(makePlatform());
+  spawnMovingBlock();
+  updateHUD();
+  screenOverlay.classList.add('hidden');
+  state = 'playing';
+}
+
+function makePlatform() {
+  return {
+    x: W/2 - 70, y: H - 60,
+    w: 140, h: BLOCK_H,
+    color: BLOCK_COLORS[0],
+    vx:0, vy:0, ax:0, ay:0,
+    angle:0, angVel:0,
+    locked: true
+  };
+}
+
+function getStackTopY() {
+  if (!blocks.length) return H - 60;
+  return Math.min(...blocks.map(b => b.y));
+}
+
+function spawnMovingBlock() {
+  colorIndex = (colorIndex+1) % BLOCK_COLORS.length;
+  const w = Math.max(MIN_BLOCK_W, BASE_BLOCK_W - difficulty*30 + (Math.random()-0.5)*20);
+  const speed = (2 + difficulty*3.5) * (Math.random()<0.5?1:-1);
+  movingBlock = {
+    x: speed>0 ? -w : W,
+    y: getStackTopY() - BLOCK_H - 10,
+    w, h: BLOCK_H,
+    vx: speed, vy: 0,
+    color: BLOCK_COLORS[colorIndex],
+    angle: 0, angVel: 0,
+    dropped: false, landing: false,
+    landTimer: 0
+  };
+}
+
+// ── Drop block ─────────────────────────────────────────────────────────────
+function dropBlock() {
+  if (!movingBlock || movingBlock.dropped || state !== 'playing') return;
+  movingBlock.dropped = true;
+  movingBlock.vy = 1;
+  movingBlock.vx *= 0.1; // slight carry
+}
+
+// ── Physics update ─────────────────────────────────────────────────────────
+function physicsStep() {
+  if (!movingBlock) return;
+
+  if (movingBlock.dropped) {
+    // Apply gravity + wind
+    movingBlock.vy += GRAVITY;
+    movingBlock.vx += wind * 0.04;
+    movingBlock.x += movingBlock.vx;
+    movingBlock.y += movingBlock.vy;
+    movingBlock.angle += movingBlock.angVel;
+    movingBlock.angVel *= ANG_FRICTION;
+
+    // Check collision with top block
+    const topBlock = getTopBlock();
+    if (topBlock) {
+      const blockBottom = movingBlock.y + movingBlock.h;
+      const stackTop = topBlock.y;
+      if (blockBottom >= stackTop && movingBlock.y < stackTop && movingBlock.vy > 0) {
+        landBlock(topBlock);
+        return;
+      }
+    }
+
+    // Miss — fell off screen
+    if (movingBlock.y > H + 50) {
+      triggerGameOver();
+    }
+  } else {
+    // Sliding motion
+    movingBlock.x += movingBlock.vx;
+    // Bounce at edges
+    if (movingBlock.x < -movingBlock.w) movingBlock.x = W + 5;
+    if (movingBlock.x > W + 5) movingBlock.x = -movingBlock.w;
+  }
+
+  // Wobble stacked blocks (instability)
+  if (difficulty > 0.3) {
+    blocks.forEach((b, i) => {
+      if (b.locked) return;
+      b.angVel += (Math.random()-0.5) * difficulty * 0.015;
+      b.angVel *= ANG_FRICTION;
+      b.angle += b.angVel;
+      // Clamp angle
+      if (Math.abs(b.angle) > 0.6) { b.angle *= 0.9; b.angVel *= -0.3; }
+      b.vx += wind * 0.005;
+      b.vx *= 0.92;
+      b.x += b.vx;
+    });
+  }
+}
+
+function getTopBlock() {
+  if (!blocks.length) return null;
+  return blocks.reduce((a,b) => a.y < b.y ? a : b);
+}
+
+function landBlock(topBlock) {
+  const mb = movingBlock;
+  // Snap to top
+  mb.y = topBlock.y - mb.h;
+  mb.vy = 0; mb.vx = 0;
+
+  // Check if successfully landed (overlapping enough)
+  const overlapLeft  = Math.max(mb.x, topBlock.x);
+  const overlapRight = Math.min(mb.x + mb.w, topBlock.x + topBlock.w);
+  const overlap = overlapRight - overlapLeft;
+
+  const minOverlap = mb.w * 0.25;
+
+  if (overlap < minOverlap) {
+    // Miss — not enough overlap
+    triggerGameOver();
+    return;
+  }
+
+  // Trim block to only overlapping region (classic stacker mechanic)
+  const trimRatio = overlap / mb.w;
+  mb.x = overlapLeft;
+  mb.w = overlap;
+  mb.angle = 0; mb.angVel = 0;
+  mb.vx = 0; mb.vy = 0;
+  mb.locked = false;
+
+  blocks.push({...mb});
+  towerHeight = blocks.length - 1;
+
+  // Score
+  streak++;
+  if (streak > bestStreak) bestStreak = streak;
+  multiplier = 1 + Math.floor(streak / 5);
+  const pts = Math.round(100 * multiplier * (trimRatio * 0.5 + 0.5));
+  score += pts;
+  if (score > bestScore) bestScore = score;
+
+  // Difficulty
+  difficulty = Math.min(1, towerHeight * 0.015);
+
+  // Wind
+  if (towerHeight % 5 === 0 && towerHeight > 0) {
+    windTarget = (Math.random()-0.5) * difficulty * 4;
+  }
+  wind += (windTarget - wind) * 0.08;
+
+  // Particles
+  spawnParticles(mb.x + mb.w/2, mb.y, mb.color[0], streak % 10 === 0 ? 30 : 12);
+
+  // Screen shake on high streak
+  if (streak % 10 === 0) screenShake = 8;
+
+  // Milestone toast
+  if ([10,25,50,100].includes(streak)) showToast(`🔥 ${streak} STREAK!`);
+
+  movingBlock = null;
+  updateHUD();
+  scrollCamera();
+  setTimeout(spawnMovingBlock, 300);
+}
+
+// ── Camera scroll (keep tower top visible) ─────────────────────────────────
+let cameraY = 0;
+let cameraTween = 0;
+
+function scrollCamera() {
+  const topY = getStackTopY();
+  const targetCam = Math.max(0, (H/2 - 100) - topY);
+  cameraTween = targetCam;
+}
+
+// ── Game Over ──────────────────────────────────────────────────────────────
+function triggerGameOver() {
+  state = 'dead';
+  movingBlock = null;
+  screenShake = 16;
+  setTimeout(() => {
+    overlayTitle.textContent = 'GAME OVER';
+    overlaySub.textContent = streak > 0 ? `${streak} CONSECUTIVE` : 'NO STREAK';
+    statRow.style.display = 'flex';
+    finalScore.textContent = score;
+    finalStreak.textContent = streak;
+    finalHeight.textContent = towerHeight;
+    playBtn.textContent = '↺ RETRY';
+    screenOverlay.classList.remove('hidden');
+  }, 600);
+}
+
+// ── Particles ──────────────────────────────────────────────────────────────
+function spawnParticles(x, y, color, count) {
+  for (let i=0; i<count; i++) {
+    const angle = Math.random()*Math.PI*2;
+    const speed = 1.5+Math.random()*3;
+    particles.push({
+      x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed - 2,
+      color, size: 2+Math.random()*4,
+      life: 1, decay: 0.02+Math.random()*0.03
+    });
+  }
+}
+
+function updateParticles() {
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.vy += 0.12; p.vx *= 0.96;
+    p.life -= p.decay;
+    p.size *= 0.97;
+  });
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translate(-50%, -50%) scale(1.2)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translate(-50%, -50%) scale(0.8)';
+  }, 1200);
+}
+
+// ── HUD ────────────────────────────────────────────────────────────────────
+function updateHUD() {
+  scoreVal.textContent = score;
+  heightVal.textContent = towerHeight;
+  bestVal.textContent = bestScore;
+  streakNum.textContent = streak;
+  streakNum.style.color = streak >= 25 ? '#ffcc00' : streak >= 10 ? '#ff6b00' : '#00ffcc';
+  streakNum.style.textShadow = `0 0 20px ${streakNum.style.color}, 0 0 40px ${streakNum.style.color}88`;
+  if (multiplier > 1) {
+    multiplierBadge.textContent = `×${multiplier}`;
+    multiplierBadge.style.opacity = '1';
+  } else {
+    multiplierBadge.style.opacity = '0';
+  }
+  // Wind indicator
+  if (Math.abs(wind) > 0.2) {
+    windIndicator.classList.add('visible');
+    windArrow.textContent = wind > 0 ? '→' : '←';
+    const bars = Math.ceil(Math.abs(wind)/1.5);
+    windStrength.textContent = '█'.repeat(Math.min(bars,4));
+  } else {
+    windIndicator.classList.remove('visible');
+  }
+}
+
+// ── Draw ───────────────────────────────────────────────────────────────────
+function drawBackground() {
+  // Sky gradient
+  const sky = ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0, '#0a0a2e');
+  sky.addColorStop(0.6, '#0d1540');
+  sky.addColorStop(1, '#1a0a30');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0,0,W,H);
+
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  for (let i=0; i<60; i++) {
+    const sx = (i*137.5)%W;
+    const sy = (i*97.3)%300;
+    const ss = (Math.sin(frameCount*0.02+i)*0.5+0.5)*1.5;
+    ctx.beginPath();
+    ctx.arc(sx, sy, ss, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // City silhouette
+  const camOffset = cameraY;
+  ctx.fillStyle = '#0e1625';
+  cityBuildings.forEach(b => {
+    ctx.fillRect(b.x, H - b.h + camOffset, b.w, b.h);
+  });
+
+  // City windows
+  cityBuildings.forEach(b => {
+    for (let wy = H - b.h + camOffset + 8; wy < H - 10; wy += 14) {
+      for (let wx = b.x + 4; wx < b.x + b.w - 4; wx += 8) {
+        const lit = Math.sin(wx*3.7+wy*1.9+frameCount*0.01)>0.3;
+        if (lit) {
+          ctx.fillStyle = 'rgba(255,220,80,0.35)';
+          ctx.fillRect(wx, wy, 4, 6);
+        }
+      }
+    }
+  });
+
+  // Clouds
+  clouds.forEach(cl => {
+    cl.x += cl.speed;
+    if (cl.x > W + cl.w) cl.x = -cl.w;
+    const clY = cl.y + camOffset * 0.15;
+    ctx.fillStyle = 'rgba(100,130,200,0.12)';
+    ctx.beginPath();
+    ctx.ellipse(cl.x, clY, cl.w/2, cl.h/2, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cl.x-cl.w*0.3, clY+4, cl.w*0.3, cl.h*0.35, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cl.x+cl.w*0.25, clY+6, cl.w*0.28, cl.h*0.3, 0, 0, Math.PI*2);
+    ctx.fill();
+  });
+}
+
+function drawBlock(b, alpha=1) {
+  ctx.save();
+  const cx = b.x + b.w/2, cy = b.y + b.h/2;
+  ctx.translate(cx + cameraY*0, cy + cameraY);
+  ctx.rotate(b.angle || 0);
+  ctx.globalAlpha = alpha;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(-b.w/2+4, -b.h/2+4, b.w, b.h);
+
+  // Main body
+  const grad = ctx.createLinearGradient(-b.w/2, -b.h/2, b.w/2, b.h/2);
+  grad.addColorStop(0, b.color[0]);
+  grad.addColorStop(1, b.color[1]);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.roundRect(-b.w/2, -b.h/2, b.w, b.h, 4);
+  ctx.fill();
+
+  // Top highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.beginPath();
+  ctx.roundRect(-b.w/2+2, -b.h/2+2, b.w-4, b.h/3, 3);
+  ctx.fill();
+
+  // Glow on high streak
+  if (streak >= 10 && !b.locked) {
+    const glow = streak >= 25 ? '#ffcc00' : '#ff6b00';
+    ctx.strokeStyle = glow;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.4 + Math.sin(frameCount*0.15)*0.2;
+    ctx.beginPath();
+    ctx.roundRect(-b.w/2, -b.h/2, b.w, b.h, 4);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawMovingBlock() {
+  if (!movingBlock) return;
+  const mb = movingBlock;
+  ctx.save();
+  const cx = mb.x + mb.w/2, cy = mb.y + mb.h/2;
+  // Sliding block doesn't scroll with camera unless dropped
+  const camOff = mb.dropped ? cameraY : 0;
+  ctx.translate(cx, cy + camOff);
+  ctx.rotate(mb.angle || 0);
+
+  // Dashed guide line (only when not dropped)
+  if (!mb.dropped) {
+    ctx.setLineDash([4,6]);
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, mb.h/2);
+    ctx.lineTo(0, H - cy - camOff);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.fillRect(-mb.w/2+3, -mb.h/2+3, mb.w, mb.h);
+
+  const grad = ctx.createLinearGradient(-mb.w/2, 0, mb.w/2, 0);
+  grad.addColorStop(0, mb.color[0]);
+  grad.addColorStop(1, mb.color[1]);
+  ctx.fillStyle = grad;
+  ctx.globalAlpha = mb.dropped ? 1 : (0.8 + Math.sin(frameCount*0.2)*0.1);
+  ctx.beginPath();
+  ctx.roundRect(-mb.w/2, -mb.h/2, mb.w, mb.h, 4);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.beginPath();
+  ctx.roundRect(-mb.w/2+2, -mb.h/2+2, mb.w-4, mb.h/3, 3);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.save();
+    ctx.globalAlpha = p.life * 0.9;
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y + cameraY, p.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawGroundLine() {
+  ctx.strokeStyle = 'rgba(0,255,200,0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, H - 40 + cameraY);
+  ctx.lineTo(W, H - 40 + cameraY);
+  ctx.stroke();
+}
+
+// ── Main loop ──────────────────────────────────────────────────────────────
+let lastTime = 0;
+
+function loop(ts) {
+  const dt = Math.min((ts - lastTime)/1000, 0.05);
+  lastTime = ts;
+  frameCount++;
+
+  // Tween camera
+  cameraY += (cameraTween - cameraY) * 0.06;
+
+  // Wind drift
+  wind += (windTarget - wind) * 0.02;
+
+  // Screen shake
+  if (screenShake > 0) {
+    screenShake *= 0.85;
+    if (screenShake < 0.3) screenShake = 0;
+  }
+
+  // Physics
+  if (state === 'playing') {
+    physicsAccum += dt;
+    while (physicsAccum >= FIXED_DT) {
+      physicsStep();
+      physicsAccum -= FIXED_DT;
+    }
+    updateParticles();
+  }
+
+  // Draw
+  ctx.save();
+  if (screenShake > 0) {
+    ctx.translate((Math.random()-0.5)*screenShake, (Math.random()-0.5)*screenShake);
+  }
+
+  drawBackground();
+  drawGroundLine();
+
+  // Draw stacked blocks
+  blocks.forEach((b,i) => {
+    // Tilt color hint for instability
+    const instability = Math.abs(b.angle) / 0.6;
+    drawBlock(b, 1);
+    if (instability > 0.3 && !b.locked) {
+      ctx.save();
+      ctx.globalAlpha = instability * 0.3;
+      ctx.fillStyle = '#ff3300';
+      ctx.fillRect(b.x, b.y + cameraY, b.w, b.h);
+      ctx.restore();
+    }
+  });
+
+  drawMovingBlock();
+  drawParticles();
+
+  ctx.restore();
+
+  requestAnimationFrame(loop);
+}
+
+// ── Input ──────────────────────────────────────────────────────────────────
+function handleInput() {
+  if (state === 'playing') dropBlock();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowDown' || e.code === 'Enter') {
+    e.preventDefault();
+    handleInput();
+  }
+});
+canvas.addEventListener('pointerdown', e => { e.preventDefault(); handleInput(); });
+document.getElementById('gameWrapper').addEventListener('pointerdown', e => { handleInput(); });
+
+playBtn.addEventListener('click', () => {
+  overlayTitle.textContent = 'STACK BUILDER';
+  overlaySub.textContent = 'CONSECUTIVE ARCADE';
+  statRow.style.display = 'none';
+  playBtn.textContent = '▶ PLAY';
+  newGame();
+});
+
+// ── Start ──────────────────────────────────────────────────────────────────
+initScene();
+requestAnimationFrame(loop);
+</script>
 </body>
 </html>
