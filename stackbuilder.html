@@ -376,13 +376,13 @@
     <div class="milestone-toast" id="toast"></div>
 
     <!-- In-game unlock banner -->
-    <div id="unlockBanner" style="display:none; position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg,rgba(57,255,20,0.18),rgba(0,245,255,0.12),rgba(57,255,20,0.18)); border-bottom:1px solid rgba(57,255,20,0.4); padding:10px; text-align:center; font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:#39ff14; text-shadow:0 0 12px #39ff14; z-index:50; animation:bannerSlide .4s ease-out;">⚡ STAGE 3 UNLOCKED — FINALE READY ⚡</div>
+    <div id="unlockBanner" style="display:none; position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg,rgba(57,255,20,0.18),rgba(0,245,255,0.12),rgba(57,255,20,0.18)); border-bottom:1px solid rgba(57,255,20,0.4); padding:10px; text-align:center; font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:#39ff14; text-shadow:0 0 12px #39ff14; z-index:50; animation:bannerSlide .4s ease-out;">⚡ STAGE 2 UNLOCKED — PIANO TILES READY ⚡</div>
 
     <!-- Start / Game Over Screen -->
     <div id="screen-overlay">
-      <a href="index.html" style="position:absolute; top:18px; left:18px; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.25); text-decoration:none; border:1px solid rgba(255,255,255,0.1); border-radius:3px; padding:4px 10px; transition:all .2s;" onmouseover="this.style.color='#00ffcc';this.style.borderColor='#00ffcc';" onmouseout="this.style.color='rgba(255,255,255,0.25)';this.style.borderColor='rgba(255,255,255,0.1)';">← ARCADE</a>
+      <a href="index.html" onclick="event.preventDefault(); goToArcadeWithUnlock();" style="position:absolute; top:18px; left:18px; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.25); text-decoration:none; border:1px solid rgba(255,255,255,0.1); border-radius:3px; padding:4px 10px; transition:all .2s;" onmouseover="this.style.color='#00ffcc';this.style.borderColor='#00ffcc';" onmouseout="this.style.color='rgba(255,255,255,0.25)';this.style.borderColor='rgba(255,255,255,0.1)';">← ARCADE</a>
       <div class="screen-title" id="overlayTitle">STACK BUILDER</div>
-      <div class="screen-sub" id="overlaySub">HIT 8 STREAK → UNLOCK FINALE</div>
+      <div class="screen-sub" id="overlaySub">HIT 25 STREAK → UNLOCK PIANO TILES</div>
       <div class="stat-row" id="statRow" style="display:none">
         <div class="stat-box">
           <div class="stat-val" id="finalScore">0</div>
@@ -397,7 +397,7 @@
           <div class="stat-lbl">HEIGHT</div>
         </div>
       </div>
-      <div id="unlockBadge" style="display:none; background:linear-gradient(135deg,rgba(57,255,20,0.15),rgba(0,245,255,0.1)); border:1.5px solid #39ff14; border-radius:4px; padding:8px 20px; margin-bottom:12px; font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; color:#39ff14; text-shadow:0 0 10px #39ff14;">✅ FINALE UNLOCKED — HEAD BACK TO ARCADE!</div>
+      <div id="unlockBadge" style="display:none; background:linear-gradient(135deg,rgba(57,255,20,0.15),rgba(0,245,255,0.1)); border:1.5px solid #39ff14; border-radius:4px; padding:8px 20px; margin-bottom:12px; font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; color:#39ff14; text-shadow:0 0 10px #39ff14;">✅ STAGE 2 UNLOCKED — HEAD BACK TO ARCADE!</div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
         <button class="play-btn" id="playBtn">▶ PLAY</button>
         <button class="play-btn" id="arcadeBtn" style="background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02)); border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.4); display:none;">← ARCADE</button>
@@ -410,8 +410,8 @@
 <div id="streakModal">
   <div class="modal-box" id="modalBox">
     <div class="modal-icon">🏗️</div>
-    <div class="modal-title">STREAK HIT!</div>
-    <div class="modal-sub">Stage 3 — Finale Unlocked</div>
+    <div class="modal-title">UNLOCKED!</div>
+    <div class="modal-sub">Stage 2 — Piano Tiles Unlocked</div>
     <div class="modal-stat" id="modalStreakStat">8 STREAK</div>
     <div class="modal-divider"></div>
     <div class="modal-question">What do you want to do?</div>
@@ -454,8 +454,8 @@ const BLOCK_COLORS = [
 ];
 
 // ── Arcade integration constants ───────────────────────────────────────────
-const STREAK_REQUIRED = 8;  // streak needed to unlock Stage 3
-const STAGE_NUMBER    = 2;  // this game is Stage 2
+const STREAK_REQUIRED = 25; // streak needed to unlock Stage 2 (Piano Tiles)
+const STAGE_NUMBER    = 1;  // this game is Stage 1
 
 // ── State ──────────────────────────────────────────────────────────────────
 let state = 'title'; // title | playing | dead
@@ -686,8 +686,7 @@ function landBlock(topBlock) {
   // Arcade unlock — fire once when streak threshold first reached
   if (streak >= STREAK_REQUIRED && !unlockFired) {
     unlockFired = true;
-    localStorage.setItem('gj_unlocked', '3');
-    localStorage.setItem('gj_stack_streak', String(streak));
+    sessionStorage.setItem('gj_unlocked', '2');
     playUnlockFanfare();
     showUnlockModal(streak);
   }
@@ -718,7 +717,7 @@ function triggerGameOver() {
   screenShake = 16;
   setTimeout(() => {
     overlayTitle.textContent = 'GAME OVER';
-    overlaySub.textContent = streak > 0 ? `${streak} CONSECUTIVE` : 'NO STREAK';
+    overlaySub.textContent = streak >= STREAK_REQUIRED ? '🎉 STAGE 2 UNLOCKED!' : streak > 0 ? `${streak} STREAK` : 'NO STREAK';
     statRow.style.display = 'flex';
     finalScore.textContent = score;
     finalStreak.textContent = streak;
@@ -1057,8 +1056,14 @@ playBtn.addEventListener('click', () => {
 });
 
 document.getElementById('arcadeBtn').addEventListener('click', () => {
-  window.location.href = 'index.html';
+  goToArcadeWithUnlock();
 });
+
+// ── Arcade navigation with unlock level ────────────────────────────────────
+function goToArcadeWithUnlock() {
+  const level = sessionStorage.getItem('gj_unlocked') || '1';
+  window.location.href = 'index.html?unlocked=' + level;
+}
 
 // ── Streak modal ───────────────────────────────────────────────────────────
 function playUnlockFanfare() {
@@ -1106,7 +1111,7 @@ function showUnlockModal(streakCount) {
 }
 
 document.getElementById('modalArcadeBtn').addEventListener('click', () => {
-  window.location.href = 'index.html';
+  goToArcadeWithUnlock();
 });
 document.getElementById('modalStayBtn').addEventListener('click', () => {
   const modal = document.getElementById('streakModal');

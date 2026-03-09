@@ -523,21 +523,21 @@ footer a {
   <!-- GAME TRACK -->
   <div class="track" id="gameTrack">
 
-    <!-- ── GAME 1: Piano Tiles ── -->
+    <!-- ── GAME 1: Stack Builder ── -->
     <div class="game-card" id="card-1" style="--accent: var(--neon-cyan); --glow: rgba(0,245,255,0.4);">
       <div class="card-inner">
         <div class="card-num">01</div>
         <div class="card-body">
           <div class="card-tag">STAGE ONE</div>
-          <div class="card-title">PIANO TILES</div>
-          <div class="card-desc">Tap the falling black tiles. Don't miss the beat. Don't touch the white.</div>
+          <div class="card-title">STACK BUILDER</div>
+          <div class="card-desc">Drop blocks to build the tallest tower. Precision and timing is everything.</div>
           <div class="combo-req" id="req-1">
             <span>UNLOCK NEXT:</span>
-            <span class="req-val" id="req-val-1">10 COMBO</span>
+            <span class="req-val" id="req-val-1">25 STREAK</span>
           </div>
         </div>
         <div class="card-cta">
-          <a href="pianotiles.html" class="play-btn" id="btn-1">▶ PLAY</a>
+          <a href="stackbuilder.html" class="play-btn" id="btn-1">▶ PLAY</a>
         </div>
       </div>
     </div>
@@ -546,22 +546,22 @@ footer a {
     <div class="gate">
       <div class="gate-inner" id="gate-1">
         <span class="gate-icon">🔒</span>
-        <span id="gate-label-1">NEED 10 COMBO IN PIANO TILES</span>
+        <span id="gate-label-1">NEED 25 STREAK IN STACK BUILDER</span>
       </div>
     </div>
 
-    <!-- ── GAME 2: Stack Builder ── -->
+    <!-- ── GAME 2: Piano Tiles ── -->
     <div class="game-card locked-card" id="card-2" style="--accent: var(--neon-pink); --glow: rgba(255,45,120,0.4);">
       <div class="lock-overlay"><span class="lock-icon">🔒</span></div>
       <div class="card-inner">
         <div class="card-num">02</div>
         <div class="card-body">
           <div class="card-tag">STAGE TWO</div>
-          <div class="card-title">STACK BUILDER</div>
-          <div class="card-desc">Drop blocks to build the tallest tower. Precision and timing is everything.</div>
+          <div class="card-title">PIANO TILES</div>
+          <div class="card-desc">Tap the falling tiles in time with the music. Don't break the rhythm.</div>
           <div class="combo-req" id="req-2">
             <span>UNLOCK NEXT:</span>
-            <span class="req-val" id="req-val-2">8 STACK STREAK</span>
+            <span class="req-val" id="req-val-2">20 COMBO</span>
           </div>
         </div>
         <div class="card-cta">
@@ -574,7 +574,7 @@ footer a {
     <div class="gate">
       <div class="gate-inner" id="gate-2">
         <span class="gate-icon">🔒</span>
-        <span id="gate-label-2">NEED 8 STREAK IN STACK BUILDER</span>
+        <span id="gate-label-2">NEED 20 COMBO IN PIANO TILES</span>
       </div>
     </div>
 
@@ -674,44 +674,32 @@ document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
 document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
 
 // ── Arcade state machine ───────────────────────────────────────────────────
-// We use localStorage to persist combo unlocks across page visits
-// So when player finishes Piano Tiles and comes back, their progress is saved
+// ── Unlock is SESSION-ONLY — resets every time the hub loads fresh ──────────
+// Games pass back their unlock level via URL param: ?unlocked=2 or ?unlocked=3
+// No localStorage reading — the hub always starts locked unless a game just sent us back
 
-const COMBO_REQUIREMENTS = {
-  1: 10,  // Piano Tiles: need 10-combo to unlock Stage 2
-  2: 8,   // Stack Builder: need 8-streak to unlock Stage 3
-};
+// Always start locked
+let unlockedStages = 1;
 
-// Load saved state
-let unlockedStages = parseInt(localStorage.getItem('gj_unlocked') || '1');
-// unlockedStages = 1 means only stage 1 open
-// unlockedStages = 2 means stages 1+2 open, etc.
-
-function saveState() {
-  localStorage.setItem('gj_unlocked', String(unlockedStages));
+// Check if a game is returning us with an unlock
+const urlParams = new URLSearchParams(window.location.search);
+const unlockedParam = parseInt(urlParams.get('unlocked') || '0');
+if (unlockedParam >= 2) {
+  unlockedStages = unlockedParam;
+}
+// Clean the URL immediately so refreshing doesn't re-apply the param
+if (unlockedParam) {
+  window.history.replaceState({}, '', window.location.pathname);
 }
 
-// ── Check for combo results passed from game pages ──────────────────────────
-// Games signal completion via URL param: ?combo=12&stage=1
-// e.g. pianotiles.html redirects back: index.html?combo=15&stage=1
-const urlParams = new URLSearchParams(window.location.search);
-const comboParam  = parseInt(urlParams.get('combo')  || '0');
-const stageParam  = parseInt(urlParams.get('stage')  || '0');
-
-if (stageParam >= 1 && comboParam > 0) {
-  const required = COMBO_REQUIREMENTS[stageParam];
-  if (required && comboParam >= required && unlockedStages <= stageParam) {
-    unlockedStages = stageParam + 1;
-    saveState();
-  }
-  // Clean URL
-  window.history.replaceState({}, '', window.location.pathname);
+function saveState() {
+  // no-op: we no longer persist unlock state between sessions
 }
 
 // ── Render unlock state ─────────────────────────────────────────────────────
 function renderState() {
   // Stage 2
-  if (unlockedStages >= 2) unlockCard(2, 'gate-1', 'gate-label-1', 'STAGE 2 UNLOCKED ✓', 'req-1', 'btn-2', 'stackbuilder.html', '▶ PLAY');
+  if (unlockedStages >= 2) unlockCard(2, 'gate-1', 'gate-label-1', 'STAGE 2 UNLOCKED ✓', 'req-1', 'btn-2', 'pianotiles.html', '▶ PLAY');
   // Stage 3
   if (unlockedStages >= 3) unlockCard(3, 'gate-2', 'gate-label-2', 'FINAL STAGE UNLOCKED ✓', 'req-2', 'btn-3', '#', '▶ PLAY');
 
@@ -775,19 +763,16 @@ document.addEventListener('keydown', e => {
 
   if (keyBuffer.endsWith('unlock2')) {
     unlockedStages = Math.max(unlockedStages, 2);
-    saveState(); renderState();
-    keyBuffer = '';
+    renderState(); keyBuffer = '';
     flashUnlock('card-2');
   }
   if (keyBuffer.endsWith('unlock3')) {
     unlockedStages = Math.max(unlockedStages, 3);
-    saveState(); renderState();
-    keyBuffer = '';
+    renderState(); keyBuffer = '';
     flashUnlock('card-3');
   }
   if (keyBuffer.endsWith('reset')) {
-    unlockedStages = 1;
-    saveState(); location.reload();
+    location.reload(); // fresh load = stage 1
   }
 });
 
@@ -801,13 +786,11 @@ function flashUnlock(cardId) {
 // ── Also expose a global function so games can call it via postMessage ──────
 // If your game pages are same-origin, they can call:
 //   window.opener.groupJamCombo(stageNumber, comboCount)
-window.groupJamCombo = function(stage, combo) {
-  const required = COMBO_REQUIREMENTS[stage];
-  if (required && combo >= required && unlockedStages <= stage) {
-    unlockedStages = stage + 1;
-    saveState();
+window.groupJamCombo = function(stage, newUnlocked) {
+  if (newUnlocked > unlockedStages) {
+    unlockedStages = newUnlocked;
     renderState();
-    flashUnlock('card-' + (stage + 1));
+    flashUnlock('card-' + newUnlocked);
   }
 };
 
