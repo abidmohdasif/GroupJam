@@ -382,7 +382,7 @@
     <div id="screen-overlay">
       <a href="index.html" onclick="event.preventDefault(); goToArcadeWithUnlock();" style="position:absolute; top:18px; left:18px; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.25); text-decoration:none; border:1px solid rgba(255,255,255,0.1); border-radius:3px; padding:4px 10px; transition:all .2s;" onmouseover="this.style.color='#00ffcc';this.style.borderColor='#00ffcc';" onmouseout="this.style.color='rgba(255,255,255,0.25)';this.style.borderColor='rgba(255,255,255,0.1)';">← ARCADE</a>
       <div class="screen-title" id="overlayTitle">STACK BUILDER</div>
-      <div class="screen-sub" id="overlaySub">HIT 25 STREAK → UNLOCK PIANO TILES</div>
+      <div class="screen-sub" id="overlaySub">HIT 15 STREAK → UNLOCK PIANO TILES</div>
       <div class="stat-row" id="statRow" style="display:none">
         <div class="stat-box">
           <div class="stat-val" id="finalScore">0</div>
@@ -454,7 +454,7 @@ const BLOCK_COLORS = [
 ];
 
 // ── Arcade integration constants ───────────────────────────────────────────
-const STREAK_REQUIRED = 20; // streak needed to unlock Stage 2 (Piano Tiles)
+const STREAK_REQUIRED = 15; // streak needed to unlock Stage 2 (Piano Tiles)
 const STAGE_NUMBER    = 1;  // this game is Stage 1
 
 // ── State ──────────────────────────────────────────────────────────────────
