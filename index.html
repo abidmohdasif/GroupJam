@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Combo Chain Arena - Game Jam Prototype</title>
+    <title>Combo Chain Arena - Game Jam Version</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
-        body { margin: 0; background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; font-family: sans-serif; }
-        canvas { border: 4px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        #ui-layer { position: absolute; top: 20px; left: 20px; pointer-events: none; }
+        body { margin: 0; background: #0a0a0a; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; font-family: 'Courier New', Courier, monospace; }
+        #ui-layer { position: absolute; top: 20px; left: 20px; pointer-events: none; text-shadow: 2px 2px #000; }
+        .stat-bar { font-size: 14px; color: #00ffcc; margin-top: 5px; }
+        #instructions { position: absolute; bottom: 20px; width: 100%; text-align: center; color: #555; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div id="ui-layer">
-    <div id="score">Score: 0</div>
-    <div id="combo" style="font-size: 24px; font-weight: bold; color: #fbff00;">Combo: 0</div>
-    <div id="stats" style="font-size: 12px; color: #aaa;">Speed: 100% | Damage: 100%</div>
+    <div id="score" style="font-size: 18px;">Score: 0</div>
+    <div id="combo" style="font-size: 32px; font-weight: bold; color: #fbff00;">Combo: 0</div>
+    <div id="stats" class="stat-bar">Speed: 100% | Damage: 100%</div>
 </div>
 
+<div id="instructions">WASD to Move | Left Click to Shoot | SPACE or Right-Click for NOVA (at 5 Combo)</div>
+
 <script>
-/**
- * COMBO CHAIN ARENA - CORE ARCHITECTURE
- * 1. GameManager: State & Multiplier logic
- * 2. Player: Movement & Stat Application
- * 3. Spawner: Combo-based difficulty scaling
+/** * COMBO CHAIN ARENA 
+ * Lead Programmer: Gemini AI
  */
 
 class MainScene extends Phaser.Scene {
@@ -33,91 +33,100 @@ class MainScene extends Phaser.Scene {
     }
 
     preload() {
-        // Create simple shapes for assets
         let graphics = this.make.graphics();
         
-        // Player (Blue Square)
+        // Player
         graphics.fillStyle(0x0088ff, 1);
         graphics.fillRect(0, 0, 32, 32);
         graphics.generateTexture('player', 32, 32);
         graphics.clear();
 
-        // Projectile (Yellow Circle)
+        // Bullet
         graphics.fillStyle(0xffff00, 1);
         graphics.fillCircle(4, 4, 4);
         graphics.generateTexture('bullet', 8, 8);
         graphics.clear();
 
-        // Enemies
-        graphics.fillStyle(0xff4444, 1); // Basic (Red)
+        // Basic Enemy
+        graphics.fillStyle(0xff4444, 1);
         graphics.fillRect(0, 0, 24, 24);
         graphics.generateTexture('enemy_basic', 24, 24);
         graphics.clear();
 
-        graphics.fillStyle(0xffaa00, 1); // Fast (Orange)
+        // Fast Enemy
+        graphics.fillStyle(0xffaa00, 1);
         graphics.fillRect(0, 0, 16, 16);
         graphics.generateTexture('enemy_fast', 16, 16);
         graphics.clear();
 
-        graphics.fillStyle(0x8800ff, 1); // Tank (Purple)
+        // Tank Enemy
+        graphics.fillStyle(0x8800ff, 1);
         graphics.fillRect(0, 0, 40, 40);
         graphics.generateTexture('enemy_tank', 40, 40);
         graphics.clear();
 
-        graphics.fillStyle(0xffffff, 1); // Boss (White)
+        // Boss
+        graphics.fillStyle(0xffffff, 1);
         graphics.fillRect(0, 0, 80, 80);
         graphics.generateTexture('boss', 80, 80);
     }
 
     create() {
-        // 1. Initialize Systems
+        // 1. Logic State
         this.score = 0;
         this.combo = 0;
         this.bossActive = false;
-        
-        // Groups
+        this.nextFire = 0;
+
+        // 2. Groups
         this.bullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
         this.enemies = this.physics.add.group();
 
-        // 2. Setup Player
+        // 3. Player Setup
         this.player = this.physics.add.sprite(400, 300, 'player');
         this.player.setCollideWorldBounds(true);
+        this.player.setOrigin(0.5);
+        
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,A,S,D');
 
-        // 3. Spawner Logic
+        // 4. Input Events
+        this.input.on('pointerdown', (pointer) => {
+            if (pointer.rightButtonDown()) this.triggerNova();
+            else this.shoot();
+        });
+        this.input.keyboard.on('keydown-SPACE', () => this.triggerNova());
+        this.input.mouse.disableContextMenu();
+
+        // 5. Spawner
         this.spawnTimer = this.time.addEvent({
-            delay: 1500,
-            callback: this.spawnEnemyBatch,
+            delay: 1200,
+            callback: this.spawnLogic,
             callbackScope: this,
             loop: true
         });
 
-        // 4. Collisions
+        // 6. Overlaps
         this.physics.add.overlap(this.bullets, this.enemies, this.hitEnemy, null, this);
         this.physics.add.overlap(this.player, this.enemies, this.hitPlayer, null, this);
-
-        // 5. Input
-        this.input.on('pointerdown', () => this.shoot());
     }
 
-    update() {
-        this.handlePlayerMovement();
+    update(time) {
+        this.handleMovement();
         
-        // Rotate player to mouse
+        // Aiming
         let angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, this.input.x, this.input.y);
         this.player.setRotation(angle);
 
-        // Enemy AI: Move towards player
+        // Enemy Follow Logic
         this.enemies.getChildren().forEach(enemy => {
             this.physics.moveToObject(enemy, this.player, enemy.speed);
         });
     }
 
-    handlePlayerMovement() {
+    handleMovement() {
         const mods = this.getModifiers();
         const speed = 200 * mods.speed;
-        
         this.player.setVelocity(0);
 
         if (this.cursors.left.isDown || this.wasd.A.isDown) this.player.setVelocityX(-speed);
@@ -135,7 +144,26 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    spawnEnemyBatch() {
+    triggerNova() {
+        if (this.combo >= 5) {
+            this.combo -= 5;
+            this.cameras.main.flash(150, 0, 255, 204, 0.5);
+            this.cameras.main.shake(200, 0.01);
+
+            const numBullets = 16;
+            for (let i = 0; i < numBullets; i++) {
+                let angle = (Phaser.Math.PI2 / numBullets) * i;
+                let b = this.bullets.get(this.player.x, this.player.y);
+                if (b) {
+                    b.fire(this.player.x, this.player.y, angle, 2 * this.getModifiers().damage);
+                    b.setTint(0x00ffcc);
+                }
+            }
+            this.updateUI();
+        }
+    }
+
+    spawnLogic() {
         if (this.bossActive) return;
 
         if (this.combo >= 50) {
@@ -145,20 +173,25 @@ class MainScene extends Phaser.Scene {
 
         let type = 'enemy_basic';
         let hp = 1;
-        let speed = 100;
+        let speed = 90;
 
         if (this.combo >= 25 && Math.random() > 0.7) {
-            type = 'enemy_tank'; hp = 5; speed = 40;
+            type = 'enemy_tank'; hp = 6; speed = 40;
         } else if (this.combo >= 10 && Math.random() > 0.5) {
-            type = 'enemy_fast'; hp = 1; speed = 180;
+            type = 'enemy_fast'; hp = 1; speed = 170;
         }
 
-        this.createEnemy(type, hp, speed);
+        this.spawnEnemy(type, hp, speed);
     }
 
-    createEnemy(key, hp, speed) {
-        let x = Math.random() > 0.5 ? -50 : 850;
-        let y = Phaser.Math.Between(0, 600);
+    spawnEnemy(key, hp, speed) {
+        const side = Phaser.Math.Between(0, 3);
+        let x, y;
+        if(side === 0) { x = Math.random()*800; y = -50; }
+        else if(side === 1) { x = 850; y = Math.random()*600; }
+        else if(side === 2) { x = Math.random()*800; y = 650; }
+        else { x = -50; y = Math.random()*600; }
+
         let enemy = this.enemies.create(x, y, key);
         enemy.health = hp;
         enemy.speed = speed;
@@ -166,64 +199,82 @@ class MainScene extends Phaser.Scene {
 
     spawnBoss() {
         this.bossActive = true;
-        this.enemies.clear(true, true); // Clear minions
-        this.createEnemy('boss', 100, 60);
-        document.getElementById('combo').innerText = "BOSS FIGHT!";
+        this.enemies.clear(true, true);
+        this.spawnEnemy('boss', 120, 60);
     }
 
     hitEnemy(bullet, enemy) {
-        bullet.setActive(false).setVisible(false).disableBody();
+        enemy.setTint(0xffffff);
+        this.time.delayedCall(40, () => enemy.clearTint());
+
+        bullet.deactivate();
         enemy.health -= bullet.damage;
         
         if (enemy.health <= 0) {
             if (enemy.texture.key === 'boss') {
-                alert("Boss Defeated! Final Score: " + this.score);
+                alert("BOSS DEFEATED! Final Score: " + this.score);
                 location.reload();
             }
+            this.createExplosion(enemy.x, enemy.y);
             enemy.destroy();
-            this.updateCombo(true);
+            this.score += 10 * (this.combo + 1);
+            this.combo++;
+            this.updateUI();
         }
     }
 
     hitPlayer() {
-        this.cameras.main.shake(200, 0.02);
-        this.updateCombo(false);
+        if (this.combo > 0) {
+            this.combo = 0;
+            this.cameras.main.shake(300, 0.03);
+            this.cameras.main.flash(200, 255, 0, 0, 0.4);
+            this.updateUI();
+        }
     }
 
-    updateCombo(success) {
-        if (success) {
-            this.combo++;
-            this.score += 10 * this.combo;
-        } else {
-            this.combo = 0;
-        }
-
+    updateUI() {
         const mods = this.getModifiers();
+        const comboEl = document.getElementById('combo');
+        
         document.getElementById('score').innerText = `Score: ${this.score}`;
-        document.getElementById('combo').innerText = `Combo: ${this.combo}`;
+        comboEl.innerText = `Combo: ${this.combo}${this.combo >= 5 ? ' (READY!)' : ''}`;
+        comboEl.style.color = this.combo >= 5 ? "#00ffcc" : "#fbff00";
         document.getElementById('stats').innerText = `Speed: ${Math.round(mods.speed*100)}% | Damage: ${Math.round(mods.damage*100)}%`;
     }
 
     getModifiers() {
         return {
-            speed: 1 + (this.combo * 0.02),
+            speed: 1 + (this.combo * 0.025),
             damage: 1 + (this.combo * 0.05)
         };
+    }
+
+    createExplosion(x, y) {
+        for(let i=0; i<6; i++) {
+            let p = this.add.rectangle(x, y, 4, 4, 0xffffff);
+            this.physics.add.existing(p);
+            p.body.setVelocity(Phaser.Math.Between(-150, 150), Phaser.Math.Between(-150, 150));
+            this.time.delayedCall(300, () => p.destroy());
+        }
     }
 }
 
 class Bullet extends Phaser.Physics.Arcade.Sprite {
     fire(x, y, angle, damage) {
         this.enableBody(true, x, y, true, true);
-        this.scene.physics.velocityFromRotation(angle, 500, this.body.velocity);
+        this.scene.physics.velocityFromRotation(angle, 600, this.body.velocity);
         this.damage = damage;
+        this.clearTint();
+    }
+
+    deactivate() {
+        this.setActive(false).setVisible(false).disableBody();
     }
 
     update() {
-        // If bullet goes off screen, break combo
-        if (this.active && (this.x < 0 || this.x > 800 || this.y < 0 || this.y > 600)) {
-            this.scene.updateCombo(false);
-            this.setActive(false).setVisible(false).disableBody();
+        if (this.active && (this.x < -10 || this.x > 810 || this.y < -10 || this.y > 610)) {
+            this.scene.hitPlayer(); // Reusing hitPlayer logic to reset combo
+            this.deactivate();
         }
     }
 }
