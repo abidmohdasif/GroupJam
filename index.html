@@ -710,17 +710,33 @@
     document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
 
     // ── Arcade state machine ─────────────────────────────────────────────────
-    // Unlock is SESSION-ONLY — resets every time the hub loads fresh.
-    // Games pass back their unlock level via URL param: ?unlocked=2 or ?unlocked=3
+    // Unlock persists across navigation (going to a game and back) but resets
+    // on a deliberate page reload (F5 / Cmd+R).
     let unlockedStages = 1;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const unlockedParam = parseInt(urlParams.get('unlocked') || '0');
-    if (unlockedParam >= 2) {
-      unlockedStages = unlockedParam;
+    // Detect whether this load is a reload vs. a normal navigation
+    const navEntry = performance.getEntriesByType('navigation')[0];
+    const isReload = navEntry ? navEntry.type === 'reload' : false;
+
+    if (isReload) {
+      // Hard reset — wipe session storage so a reload always starts fresh
+      sessionStorage.removeItem('gj_unlocked');
     }
 
-    // Clean the URL so refreshing doesn't re-apply the param
+    // Read unlock level: URL param (set by games) takes priority,
+    // then sessionStorage (preserved across back-navigation)
+    const urlParams    = new URLSearchParams(window.location.search);
+    const unlockedParam  = parseInt(urlParams.get('unlocked') || '0');
+    const sessionLevel   = parseInt(sessionStorage.getItem('gj_unlocked') || '1');
+
+    unlockedStages = Math.max(unlockedParam, isReload ? 1 : sessionLevel);
+
+    // Persist the current best unlock level back into sessionStorage
+    if (unlockedStages > 1) {
+      sessionStorage.setItem('gj_unlocked', String(unlockedStages));
+    }
+
+    // Clean the URL so the param doesn't linger if the user shares/bookmarks it
     if (unlockedParam) {
       window.history.replaceState({}, '', window.location.pathname);
     }
