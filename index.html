@@ -18,589 +18,827 @@
       --locked:      #1a1a2e;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     html, body {
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       background: var(--dark);
       font-family: 'VT323', monospace;
       overflow-x: hidden;
       cursor: none;
     }
 
+    /* ── Custom cursor ── */
     #cursor {
       position: fixed;
-      width: 18px; height: 18px;
+      width: 18px;
+      height: 18px;
       border: 2px solid var(--neon-yellow);
       border-radius: 50%;
       pointer-events: none;
       z-index: 9999;
-      transform: translate(-50%,-50%);
+      transform: translate(-50%, -50%);
       transition: transform 0.08s, border-color 0.2s;
       box-shadow: 0 0 8px var(--neon-yellow);
     }
+
     #cursor.clicking {
-      transform: translate(-50%,-50%) scale(0.5);
+      transform: translate(-50%, -50%) scale(0.5);
       border-color: var(--neon-pink);
       box-shadow: 0 0 16px var(--neon-pink);
     }
 
+    /* ── Scanlines overlay ── */
     body::before {
       content: '';
-      position: fixed; inset: 0;
-      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px);
-      pointer-events: none; z-index: 100;
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.18) 3px,
+        rgba(0, 0, 0, 0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
     }
 
+    /* ── Noise grain ── */
     body::after {
       content: '';
-      position: fixed; inset: 0;
+      position: fixed;
+      inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 99; opacity: 0.5;
+      pointer-events: none;
+      z-index: 99;
+      opacity: 0.5;
     }
 
-    #stars { position: fixed; inset: 0; z-index: 0; }
+    /* ── Starfield canvas ── */
+    #stars {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
 
+    /* ── Main layout ── */
     .page {
-      position: relative; z-index: 10;
+      position: relative;
+      z-index: 10;
       min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding: 0 16px 60px;
     }
 
+    /* ── Header ── */
     header {
-      width: 100%; max-width: 900px;
+      width: 100%;
+      max-width: 900px;
       text-align: center;
       padding: 48px 0 16px;
     }
 
     .logo-pre {
       font-family: 'Press Start 2P', monospace;
-      font-size: 10px; letter-spacing: 6px;
+      font-size: 10px;
+      letter-spacing: 6px;
       color: var(--neon-pink);
       text-shadow: 0 0 12px var(--neon-pink);
       margin-bottom: 12px;
       animation: blink 2.4s step-end infinite;
     }
 
-    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
 
     .logo {
       font-family: 'Press Start 2P', monospace;
       font-size: clamp(28px, 6vw, 56px);
       color: var(--neon-yellow);
-      text-shadow: 0 0 20px var(--neon-yellow), 0 0 60px rgba(255,230,0,0.4), 4px 4px 0 var(--neon-orange);
-      letter-spacing: 4px; line-height: 1.2;
+      text-shadow:
+        0 0 20px var(--neon-yellow),
+        0 0 60px rgba(255, 230, 0, 0.4),
+        4px 4px 0 var(--neon-orange);
+      letter-spacing: 4px;
+      line-height: 1.2;
       animation: logoFlicker 6s ease-in-out infinite;
     }
 
     @keyframes logoFlicker {
-      0%,95%,100% { opacity: 1; }
-      96% { opacity: 0.6; } 97% { opacity: 1; } 98% { opacity: 0.4; }
+      0%, 95%, 100% { opacity: 1; }
+      96%            { opacity: 0.6; }
+      97%            { opacity: 1; }
+      98%            { opacity: 0.4; }
     }
 
     .logo-sub {
       font-family: 'VT323', monospace;
-      font-size: 22px; color: var(--neon-cyan);
-      letter-spacing: 8px; margin-top: 10px;
+      font-size: 22px;
+      color: var(--neon-cyan);
+      letter-spacing: 8px;
+      margin-top: 10px;
       text-shadow: 0 0 12px var(--neon-cyan);
     }
 
+    /* ── Coin insert banner ── */
     .insert-coin {
       font-family: 'Press Start 2P', monospace;
-      font-size: 11px; color: var(--neon-yellow);
-      letter-spacing: 3px; margin: 28px 0 40px;
+      font-size: 11px;
+      color: var(--neon-yellow);
+      letter-spacing: 3px;
+      margin: 28px 0 40px;
       animation: blink 1.1s step-end infinite;
       text-shadow: 0 0 10px var(--neon-yellow);
     }
 
+    /* ── Combo rule banner ── */
     .combo-rule {
-      background: linear-gradient(135deg, rgba(255,45,120,0.12), rgba(0,245,255,0.08));
-      border: 1px solid rgba(0,245,255,0.3);
-      border-radius: 4px; padding: 14px 28px;
-      margin-bottom: 48px; text-align: center;
-      max-width: 700px; width: 100%;
+      background: linear-gradient(135deg, rgba(255, 45, 120, 0.12), rgba(0, 245, 255, 0.08));
+      border: 1px solid rgba(0, 245, 255, 0.3);
+      border-radius: 4px;
+      padding: 14px 28px;
+      margin-bottom: 48px;
+      text-align: center;
+      max-width: 700px;
+      width: 100%;
     }
+
     .combo-rule .rule-title {
       font-family: 'Press Start 2P', monospace;
-      font-size: 9px; color: var(--neon-pink);
-      letter-spacing: 3px; margin-bottom: 8px;
+      font-size: 9px;
+      color: var(--neon-pink);
+      letter-spacing: 3px;
+      margin-bottom: 8px;
       text-shadow: 0 0 8px var(--neon-pink);
     }
+
     .combo-rule .rule-text {
-      font-size: 20px; color: rgba(255,255,255,0.75);
-      letter-spacing: 1px; line-height: 1.4;
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 1px;
+      line-height: 1.4;
     }
+
     .combo-rule .rule-text span {
       color: var(--neon-yellow);
       text-shadow: 0 0 8px var(--neon-yellow);
     }
 
+    /* ── Game track ── */
     .track {
-      display: flex; flex-direction: column; gap: 0;
-      width: 100%; max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+      max-width: 760px;
       position: relative;
     }
 
+    /* Vertical connector line */
     .track::before {
       content: '';
-      position: absolute; left: 50%; top: 60px; bottom: 60px; width: 2px;
+      position: absolute;
+      left: 50%;
+      top: 60px;
+      bottom: 60px;
+      width: 2px;
       background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-pink), var(--neon-yellow));
-      transform: translateX(-50%); opacity: 0.25; z-index: 0;
+      transform: translateX(-50%);
+      opacity: 0.25;
+      z-index: 0;
     }
 
+    /* ── Gate between cards ── */
     .gate {
-      position: relative; z-index: 2;
-      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 10px 0;
     }
+
     .gate-inner {
       background: var(--dark);
-      border: 1.5px solid rgba(255,230,0,0.35);
-      border-radius: 40px; padding: 8px 22px;
-      display: flex; align-items: center; gap: 10px;
+      border: 1.5px solid rgba(255, 230, 0, 0.35);
+      border-radius: 40px;
+      padding: 8px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-family: 'Press Start 2P', monospace;
-      font-size: 8px; color: var(--neon-yellow);
+      font-size: 8px;
+      color: var(--neon-yellow);
       text-shadow: 0 0 8px var(--neon-yellow);
       letter-spacing: 2px;
-      box-shadow: 0 0 20px rgba(255,230,0,0.12);
+      box-shadow: 0 0 20px rgba(255, 230, 0, 0.12);
       transition: all 0.4s;
     }
-    .gate-inner.unlocked {
-      border-color: var(--neon-green); color: var(--neon-green);
-      text-shadow: 0 0 10px var(--neon-green);
-      box-shadow: 0 0 24px rgba(57,255,20,0.25);
-    }
-    .gate-icon { font-size: 14px; }
 
+    .gate-inner.unlocked {
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+      text-shadow: 0 0 10px var(--neon-green);
+      box-shadow: 0 0 24px rgba(57, 255, 20, 0.25);
+    }
+
+    .gate-icon {
+      font-size: 14px;
+    }
+
+    /* ── Game card ── */
     .game-card {
-      position: relative; z-index: 2;
-      border-radius: 6px; overflow: hidden;
+      position: relative;
+      z-index: 2;
+      border-radius: 6px;
+      overflow: hidden;
       transition: transform 0.2s, box-shadow 0.3s;
       cursor: none;
     }
+
     .game-card:not(.locked-card):hover {
       transform: translateY(-4px) scale(1.01);
     }
+
     .card-inner {
       background: var(--panel);
-      border: 2px solid transparent; border-radius: 6px;
+      border: 2px solid transparent;
+      border-radius: 6px;
       padding: 28px 32px;
-      display: grid; grid-template-columns: auto 1fr auto;
-      align-items: center; gap: 28px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 28px;
       transition: border-color 0.3s, background 0.3s;
     }
+
+    /* Unlocked active card */
     .game-card:not(.locked-card) .card-inner {
       border-color: var(--accent, var(--neon-cyan));
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 0 40px var(--glow, rgba(0,245,255,0.12)), inset 0 1px 0 rgba(255,255,255,0.06);
-    }
-    .game-card.locked-card .card-inner {
-      border-color: rgba(255,255,255,0.06);
-      background: var(--locked); filter: saturate(0.2);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 0 40px var(--glow, rgba(0, 245, 255, 0.12)),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
+    .game-card.locked-card .card-inner {
+      border-color: rgba(255, 255, 255, 0.06);
+      background: var(--locked);
+      filter: saturate(0.2);
+    }
+
+    /* Number badge */
     .card-num {
       font-family: 'Press Start 2P', monospace;
       font-size: 28px;
       color: var(--accent, var(--neon-cyan));
       text-shadow: 0 0 20px var(--accent, var(--neon-cyan));
-      min-width: 48px; text-align: center; line-height: 1;
+      min-width: 48px;
+      text-align: center;
+      line-height: 1;
       transition: transform 0.3s;
     }
+
     .game-card:not(.locked-card):hover .card-num {
       transform: scale(1.15) rotate(-4deg);
     }
 
-    .card-body { min-width: 0; }
+    .card-body {
+      min-width: 0;
+    }
+
     .card-tag {
       font-family: 'Press Start 2P', monospace;
-      font-size: 8px; letter-spacing: 3px;
+      font-size: 8px;
+      letter-spacing: 3px;
       color: var(--accent, var(--neon-cyan));
       text-shadow: 0 0 6px var(--accent, var(--neon-cyan));
-      margin-bottom: 6px; opacity: 0.8;
+      margin-bottom: 6px;
+      opacity: 0.8;
     }
+
     .card-title {
       font-family: 'Press Start 2P', monospace;
-      font-size: clamp(14px, 2.5vw, 20px); color: #fff;
-      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
-      margin-bottom: 10px; letter-spacing: 1px; line-height: 1.5;
+      font-size: clamp(14px, 2.5vw, 20px);
+      color: #fff;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+      line-height: 1.5;
     }
+
     .card-desc {
-      font-size: 18px; color: rgba(255,255,255,0.5);
-      letter-spacing: 0.5px; line-height: 1.3; margin-bottom: 12px;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+      margin-bottom: 12px;
     }
+
     .combo-req {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 3px; padding: 5px 10px;
-      font-size: 15px; color: rgba(255,255,255,0.5);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      padding: 5px 10px;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.5);
     }
+
     .combo-req .req-val {
       font-family: 'Press Start 2P', monospace;
-      font-size: 9px; color: var(--neon-yellow);
+      font-size: 9px;
+      color: var(--neon-yellow);
       text-shadow: 0 0 6px var(--neon-yellow);
     }
-    .combo-req.met { border-color: var(--neon-green); color: var(--neon-green); }
-    .combo-req.met .req-val { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); }
 
-    .card-cta { min-width: 120px; text-align: center; }
+    .combo-req.met {
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+    }
+
+    .combo-req.met .req-val {
+      color: var(--neon-green);
+      text-shadow: 0 0 8px var(--neon-green);
+    }
+
+    /* CTA button area */
+    .card-cta {
+      min-width: 120px;
+      text-align: center;
+    }
 
     .play-btn {
       display: inline-block;
       font-family: 'Press Start 2P', monospace;
-      font-size: 10px; letter-spacing: 2px;
+      font-size: 10px;
+      letter-spacing: 2px;
       color: var(--dark);
       background: var(--accent, var(--neon-cyan));
-      border: none; border-radius: 3px;
-      padding: 12px 18px; cursor: none;
+      border: none;
+      border-radius: 3px;
+      padding: 12px 18px;
+      cursor: none;
       text-decoration: none;
-      box-shadow: 0 0 24px var(--glow, rgba(0,245,255,0.5)), 4px 4px 0 rgba(0,0,0,0.5);
+      box-shadow: 0 0 24px var(--glow, rgba(0, 245, 255, 0.5)), 4px 4px 0 rgba(0, 0, 0, 0.5);
       transition: all 0.15s;
-      position: relative; overflow: hidden; white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
     }
+
     .play-btn::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-      opacity: 0; transition: opacity 0.2s;
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
     }
-    .play-btn:hover::after { opacity: 1; }
+
+    .play-btn:hover::after {
+      opacity: 1;
+    }
+
     .play-btn:hover {
-      transform: translate(-2px,-2px);
-      box-shadow: 0 0 40px var(--glow, rgba(0,245,255,0.7)), 6px 6px 0 rgba(0,0,0,0.5);
+      transform: translate(-2px, -2px);
+      box-shadow: 0 0 40px var(--glow, rgba(0, 245, 255, 0.7)), 6px 6px 0 rgba(0, 0, 0, 0.5);
     }
+
     .play-btn:active {
-      transform: translate(2px,2px);
-      box-shadow: 0 0 10px var(--glow, rgba(0,245,255,0.3)), 2px 2px 0 rgba(0,0,0,0.5);
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 10px var(--glow, rgba(0, 245, 255, 0.3)), 2px 2px 0 rgba(0, 0, 0, 0.5);
     }
 
     .locked-btn {
       display: inline-block;
       font-family: 'Press Start 2P', monospace;
-      font-size: 9px; letter-spacing: 1px;
-      color: rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 3px; padding: 12px 18px;
-      text-align: center; white-space: nowrap;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      padding: 12px 18px;
+      text-align: center;
+      white-space: nowrap;
     }
 
+    /* Locked overlay icon */
     .lock-overlay {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       pointer-events: none;
     }
-    .lock-icon { font-size: 48px; opacity: 0.07; }
 
+    .lock-icon {
+      font-size: 48px;
+      opacity: 0.07;
+    }
+
+    /* ── Progress bar ── */
     .progress-wrap {
-      width: 100%; max-width: 760px;
-      margin-top: 48px; padding: 0 4px;
+      width: 100%;
+      max-width: 760px;
+      margin-top: 48px;
+      padding: 0 4px;
     }
+
     .progress-label {
-      display: flex; justify-content: space-between;
-      font-size: 16px; color: rgba(255,255,255,0.35);
-      margin-bottom: 8px; letter-spacing: 2px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 8px;
+      letter-spacing: 2px;
     }
+
     .progress-track {
-      height: 6px; background: rgba(255,255,255,0.06);
-      border-radius: 3px; overflow: hidden;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 3px;
+      overflow: hidden;
     }
+
     .progress-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-yellow));
       border-radius: 3px;
-      transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 0 12px var(--neon-cyan);
     }
 
+    /* ── Footer ── */
     footer {
-      margin-top: 60px; text-align: center;
-      font-size: 14px; color: rgba(255,255,255,0.2);
-      letter-spacing: 3px; line-height: 2;
+      margin-top: 60px;
+      text-align: center;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.2);
+      letter-spacing: 3px;
+      line-height: 2;
     }
+
     footer a {
-      color: var(--neon-cyan); text-decoration: none;
+      color: var(--neon-cyan);
+      text-decoration: none;
       text-shadow: 0 0 6px var(--neon-cyan);
     }
 
+    /* ── Unlock flash animation ── */
     @keyframes unlockFlash {
-      0%   { box-shadow: 0 0 0 0 rgba(57,255,20,0.8); }
-      50%  { box-shadow: 0 0 60px 20px rgba(57,255,20,0.4); }
-      100% { box-shadow: 0 0 0 0 rgba(57,255,20,0); }
+      0%   { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.8); }
+      50%  { box-shadow: 0 0 60px 20px rgba(57, 255, 20, 0.4); }
+      100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
     }
-    .unlocking { animation: unlockFlash 0.6s ease-out; }
 
+    .unlocking {
+      animation: unlockFlash 0.6s ease-out;
+    }
+
+    /* ── Responsive ── */
     @media (max-width: 600px) {
-      .card-inner { grid-template-columns: 1fr; text-align: center; }
-      .card-num { font-size: 22px; }
-      .card-cta { margin-top: 8px; }
-      .track::before { display: none; }
+      .card-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .card-num {
+        font-size: 22px;
+      }
+
+      .card-cta {
+        margin-top: 8px;
+      }
+
+      .track::before {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
-<div id="cursor"></div>
+  <canvas id="stars"></canvas>
+  <div id="cursor"></div>
 
-<div class="page">
+  <div class="page">
 
-  <header>
-    <div class="logo-pre">▸ INSERT COIN ◂</div>
-    <div class="logo">GROUP JAM</div>
-    <div class="logo-sub">A R C A D E</div>
-  </header>
+    <!-- HEADER -->
+    <header>
+      <div class="logo-pre">▸ INSERT COIN ◂</div>
+      <div class="logo">GROUP JAM</div>
+      <div class="logo-sub">A R C A D E</div>
+    </header>
 
-  <div class="insert-coin">● PRESS START ●</div>
+    <div class="insert-coin">● PRESS START ●</div>
 
-  <div class="combo-rule">
-    <div class="rule-title">⚡ CONSECUTIVE CHALLENGE ⚡</div>
-    <div class="rule-text">
-      Hit a <span>COMBO</span> in each game to unlock the next.<br>
-      Complete all games in one <span>CONSECUTIVE</span> run to claim ARCADE MASTER!
+    <!-- COMBO RULE EXPLANATION -->
+    <div class="combo-rule">
+      <div class="rule-title">⚡ CONSECUTIVE CHALLENGE ⚡</div>
+      <div class="rule-text">
+        Hit a <span>COMBO</span> in each game to unlock the next.<br>
+        Complete all games in one <span>CONSECUTIVE</span> run to claim ARCADE MASTER!
+      </div>
     </div>
-  </div>
 
-  <div class="track" id="gameTrack">
+    <!-- GAME TRACK -->
+    <div class="track" id="gameTrack">
 
-    <!-- GAME 1: Stack Builder -->
-    <div class="game-card" id="card-1" style="--accent: var(--neon-cyan); --glow: rgba(0,245,255,0.4);">
-      <div class="card-inner">
-        <div class="card-num">01</div>
-        <div class="card-body">
-          <div class="card-tag">STAGE ONE</div>
-          <div class="card-title">STACK BUILDER</div>
-          <div class="card-desc">Drop blocks to build the tallest tower. Precision and timing is everything.</div>
-          <div class="combo-req" id="req-1">
-            <span>UNLOCK NEXT:</span>
-            <span class="req-val" id="req-val-1">15 STREAK</span>
+      <!-- ── GAME 1: Stack Builder ── -->
+      <div class="game-card" id="card-1" style="--accent: var(--neon-cyan); --glow: rgba(0,245,255,0.4);">
+        <div class="card-inner">
+          <div class="card-num">01</div>
+          <div class="card-body">
+            <div class="card-tag">STAGE ONE</div>
+            <div class="card-title">STACK BUILDER</div>
+            <div class="card-desc">Drop blocks to build the tallest tower. Precision and timing is everything.</div>
+            <div class="combo-req" id="req-1">
+              <span>UNLOCK NEXT:</span>
+              <span class="req-val" id="req-val-1">15 STREAK</span>
+            </div>
+          </div>
+          <div class="card-cta">
+            <a href="stackbuilder.html" class="play-btn" id="btn-1">▶ PLAY</a>
           </div>
         </div>
-        <div class="card-cta">
-          <a href="stackbuilder.html" class="play-btn" id="btn-1">▶ PLAY</a>
+      </div>
+
+      <!-- Gate 1 → 2 -->
+      <div class="gate">
+        <div class="gate-inner" id="gate-1">
+          <span class="gate-icon">🔒</span>
+          <span id="gate-label-1">NEED 15 STREAK IN STACK BUILDER</span>
         </div>
       </div>
-    </div>
 
-    <!-- Gate 1 → 2 -->
-    <div class="gate">
-      <div class="gate-inner" id="gate-1">
-        <span class="gate-icon">🔒</span>
-        <span id="gate-label-1">NEED 15 STREAK IN STACK BUILDER</span>
-      </div>
-    </div>
-
-    <!-- GAME 2: Piano Tiles -->
-    <div class="game-card locked-card" id="card-2" style="--accent: var(--neon-pink); --glow: rgba(255,45,120,0.4);">
-      <div class="lock-overlay"><span class="lock-icon">🔒</span></div>
-      <div class="card-inner">
-        <div class="card-num">02</div>
-        <div class="card-body">
-          <div class="card-tag">STAGE TWO</div>
-          <div class="card-title">PIANO TILES</div>
-          <div class="card-desc">Tap the falling tiles in time with the music. Don't break the rhythm.</div>
-          <div class="combo-req" id="req-2">
-            <span>UNLOCK NEXT:</span>
-            <span class="req-val" id="req-val-2">50 COMBO</span>
+      <!-- ── GAME 2: Piano Tiles ── -->
+      <div class="game-card locked-card" id="card-2" style="--accent: var(--neon-pink); --glow: rgba(255,45,120,0.4);">
+        <div class="lock-overlay"><span class="lock-icon">🔒</span></div>
+        <div class="card-inner">
+          <div class="card-num">02</div>
+          <div class="card-body">
+            <div class="card-tag">STAGE TWO</div>
+            <div class="card-title">PIANO TILES</div>
+            <div class="card-desc">Tap the falling tiles in time with the music. Don't break the rhythm.</div>
+            <div class="combo-req" id="req-2">
+              <span>UNLOCK NEXT:</span>
+              <span class="req-val" id="req-val-2">30 COMBO</span>
+            </div>
+          </div>
+          <div class="card-cta">
+            <div class="locked-btn" id="btn-2">🔒 LOCKED</div>
           </div>
         </div>
-        <div class="card-cta">
-          <div class="locked-btn" id="btn-2">🔒 LOCKED</div>
+      </div>
+
+      <!-- Gate 2 → 3 (Final) -->
+      <div class="gate">
+        <div class="gate-inner" id="gate-2">
+          <span class="gate-icon">🔒</span>
+          <span id="gate-label-2">NEED 30 COMBO IN PIANO TILES</span>
         </div>
       </div>
-    </div>
 
-    <!-- Gate 2 → 3 -->
-    <div class="gate">
-      <div class="gate-inner" id="gate-2">
-        <span class="gate-icon">🔒</span>
-        <span id="gate-label-2">NEED 50 COMBO IN PIANO TILES</span>
-      </div>
-    </div>
-
-    <!-- GAME 3: Bullseye -->
-    <div class="game-card locked-card" id="card-3" style="--accent: var(--neon-yellow); --glow: rgba(255,230,0,0.4);">
-      <div class="lock-overlay"><span class="lock-icon">🎯</span></div>
-      <div class="card-inner">
-        <div class="card-num">03</div>
-        <div class="card-body">
-          <div class="card-tag">FINAL STAGE</div>
-          <div class="card-title">BULLSEYE</div>
-          <div class="card-desc">One shot is all it takes. Hold to steady your aim, read the wind, and hit the gold.</div>
-          <div class="combo-req" id="req-3">
-            <span>OBJECTIVE:</span>
-            <span class="req-val" id="req-val-3">HIT BULLSEYE</span>
+      <!-- ── GAME 3: FINALE (placeholder for future game) ── -->
+      <div class="game-card locked-card" id="card-3" style="--accent: var(--neon-yellow); --glow: rgba(255,230,0,0.4);">
+        <div class="lock-overlay"><span class="lock-icon">🏆</span></div>
+        <div class="card-inner">
+          <div class="card-num">03</div>
+          <div class="card-body">
+            <div class="card-tag">FINAL STAGE</div>
+            <div class="card-title">??? COMING SOON</div>
+            <div class="card-desc">Clear the previous stages to reveal the final challenge. Are you ready?</div>
+            <div class="combo-req" id="req-3">
+              <span>STATUS:</span>
+              <span class="req-val" id="req-val-3">LOCKED</span>
+            </div>
+          </div>
+          <div class="card-cta">
+            <div class="locked-btn" id="btn-3">🏆 FINALE</div>
           </div>
         </div>
-        <div class="card-cta">
-          <div class="locked-btn" id="btn-3">🔒 LOCKED</div>
-        </div>
+      </div>
+
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>ARCADE PROGRESS</span>
+        <span id="progressText">0 / 3 STAGES</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
       </div>
     </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div>GROUP JAM ARCADE © 2026</div>
+      <div><a href="https://github.com/abidmohdasif/GroupJam" target="_blank">github.com/abidmohdasif/GroupJam</a></div>
+      <div style="margin-top: 8px; font-size: 12px;">USE ARROW KEYS OR MOUSE — GOOD LUCK PLAYER</div>
+    </footer>
 
   </div>
 
-  <div class="progress-wrap">
-    <div class="progress-label">
-      <span>ARCADE PROGRESS</span>
-      <span id="progressText">0 / 3 STAGES</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-    </div>
-  </div>
+  <script>
+    // ── Starfield ────────────────────────────────────────────────────────────
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
 
-  <footer>
-    <div>GROUP JAM ARCADE © 2026</div>
-    <div><a href="https://github.com/abidmohdasif/GroupJam" target="_blank">github.com/abidmohdasif/GroupJam</a></div>
-    <div style="margin-top:8px; font-size:12px;">USE ARROW KEYS OR MOUSE — GOOD LUCK PLAYER</div>
-  </footer>
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-</div>
+    function initStars() {
+      stars = Array.from({ length: 160 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.4,
+        speed: 0.05 + Math.random() * 0.15,
+        twinkle: Math.random() * Math.PI * 2
+      }));
+    }
+    initStars();
 
-<script>
-  // ── Starfield ──────────────────────────────────────────────────────────────
-  const canvas = document.getElementById('stars');
-  const ctx = canvas.getContext('2d');
-  let stars = [];
+    function animateStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => {
+        s.twinkle += 0.02;
+        const alpha = 0.3 + Math.sin(s.twinkle) * 0.4;
+        ctx.globalAlpha = Math.max(0, alpha);
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+        s.y -= s.speed;
+        if (s.y < 0) {
+          s.y = canvas.height;
+          s.x = Math.random() * canvas.width;
+        }
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animateStars);
+    }
+    animateStars();
 
-  function resizeCanvas() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  function initStars() {
-    stars = Array.from({length: 160}, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.4,
-      speed: 0.05 + Math.random() * 0.15,
-      twinkle: Math.random() * Math.PI * 2
-    }));
-  }
-  initStars();
-
-  function animateStars() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    stars.forEach(s => {
-      s.twinkle += 0.02;
-      const alpha = 0.3 + Math.sin(s.twinkle) * 0.4;
-      ctx.globalAlpha = Math.max(0, alpha);
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fill();
-      s.y -= s.speed;
-      if (s.y < 0) { s.y = canvas.height; s.x = Math.random() * canvas.width; }
+    // ── Custom cursor ────────────────────────────────────────────────────────
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
     });
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(animateStars);
-  }
-  animateStars();
+    document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
+    document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
 
-  // ── Custom cursor ──────────────────────────────────────────────────────────
-  const cursor = document.getElementById('cursor');
-  document.addEventListener('mousemove', e => {
-    cursor.style.left = e.clientX + 'px';
-    cursor.style.top  = e.clientY + 'px';
-  });
-  document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
-  document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
+    // ── Arcade state machine ─────────────────────────────────────────────────
+    // Unlock is SESSION-ONLY — resets every time the hub loads fresh.
+    // Games pass back their unlock level via URL param: ?unlocked=2 or ?unlocked=3
+    let unlockedStages = 1;
 
-  // ── Arcade state ───────────────────────────────────────────────────────────
-  let unlockedStages = 1;
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const unlockedParam = parseInt(urlParams.get('unlocked') || '0');
-  if (unlockedParam >= 2) unlockedStages = unlockedParam;
-  if (unlockedParam) window.history.replaceState({}, '', window.location.pathname);
-
-  // ── Render unlock state ────────────────────────────────────────────────────
-  function renderState() {
-    if (unlockedStages >= 2) unlockCard(2, 'gate-1', 'gate-label-1', 'STAGE 2 UNLOCKED ✓', 'req-1', 'btn-2', 'pianotiles.html', '▶ PLAY');
-    if (unlockedStages >= 3) unlockCard(3, 'gate-2', 'gate-label-2', 'FINAL STAGE UNLOCKED ✓', 'req-2', 'btn-3', 'archery.html',   '▶ PLAY');
-
-    if (unlockedStages >= 2) {
-      document.getElementById('req-1').classList.add('met');
-      document.getElementById('req-val-1').textContent = '✓ DONE';
-    }
-    if (unlockedStages >= 3) {
-      document.getElementById('req-2').classList.add('met');
-      document.getElementById('req-val-2').textContent = '✓ DONE';
+    const urlParams = new URLSearchParams(window.location.search);
+    const unlockedParam = parseInt(urlParams.get('unlocked') || '0');
+    if (unlockedParam >= 2) {
+      unlockedStages = unlockedParam;
     }
 
-    updateProgress();
-  }
-
-  function unlockCard(stageNum, gateId, gateLabelId, gateText, reqId, btnId, href, btnText) {
-    const card = document.getElementById('card-' + stageNum);
-    if (card) {
-      card.classList.remove('locked-card');
-      const overlay = card.querySelector('.lock-overlay');
-      if (overlay) overlay.style.display = 'none';
+    // Clean the URL so refreshing doesn't re-apply the param
+    if (unlockedParam) {
+      window.history.replaceState({}, '', window.location.pathname);
     }
-    const gate      = document.getElementById(gateId);
-    const gateLabel = document.getElementById(gateLabelId);
-    if (gate)      gate.classList.add('unlocked');
-    if (gateLabel) gateLabel.textContent = gateText;
-    const gateIcon = gate && gate.querySelector('.gate-icon');
-    if (gateIcon)  gateIcon.textContent = '✅';
 
-    const btn = document.getElementById(btnId);
-    if (btn) {
-      const newBtn = document.createElement('a');
-      newBtn.href = href;
-      newBtn.className = 'play-btn';
-      newBtn.id = btnId;
-      newBtn.textContent = btnText;
-      btn.replaceWith(newBtn);
+    // ── Render unlock state ──────────────────────────────────────────────────
+    function renderState() {
+      if (unlockedStages >= 2) {
+        unlockCard(2, 'gate-1', 'gate-label-1', 'STAGE 2 UNLOCKED ✓', 'req-1', 'btn-2', 'pianotiles.html', '▶ PLAY');
+      }
+      if (unlockedStages >= 3) {
+        unlockCard(3, 'gate-2', 'gate-label-2', 'FINAL STAGE UNLOCKED ✓', 'req-2', 'btn-3', '#', '▶ PLAY');
+      }
+
+      if (unlockedStages >= 2) {
+        document.getElementById('req-1').classList.add('met');
+        document.getElementById('req-val-1').textContent = '✓ DONE';
+      }
+      if (unlockedStages >= 3) {
+        document.getElementById('req-2').classList.add('met');
+        document.getElementById('req-val-2').textContent = '✓ DONE';
+      }
+
+      updateProgress();
     }
-  }
 
-  function updateProgress() {
-    const stages = unlockedStages - 1;
-    const pct    = Math.min(100, Math.round((stages / 3) * 100));
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressText').textContent = stages + ' / 3 STAGES';
-  }
+    function unlockCard(stageNum, gateId, gateLabelId, gateText, reqId, btnId, href, btnText) {
+      const card = document.getElementById('card-' + stageNum);
+      if (card) {
+        card.classList.remove('locked-card');
+        const overlay = card.querySelector('.lock-overlay');
+        if (overlay) overlay.style.display = 'none';
+      }
 
-  renderState();
+      const gate = document.getElementById(gateId);
+      const gateLabel = document.getElementById(gateLabelId);
+      if (gate) gate.classList.add('unlocked');
+      if (gateLabel) gateLabel.textContent = gateText;
 
-  // ── Dev shortcuts ──────────────────────────────────────────────────────────
-  let keyBuffer = '';
-  document.addEventListener('keydown', e => {
-    keyBuffer += e.key.toLowerCase();
-    if (keyBuffer.length > 8) keyBuffer = keyBuffer.slice(-8);
-    if (keyBuffer.endsWith('unlock2')) { unlockedStages = Math.max(unlockedStages,2); renderState(); flashUnlock('card-2'); keyBuffer=''; }
-    if (keyBuffer.endsWith('unlock3')) { unlockedStages = Math.max(unlockedStages,3); renderState(); flashUnlock('card-3'); keyBuffer=''; }
-    if (keyBuffer.endsWith('reset'))   { location.reload(); }
-  });
+      const gateIcon = gate && gate.querySelector('.gate-icon');
+      if (gateIcon) gateIcon.textContent = '✅';
 
-  function flashUnlock(cardId) {
-    const card = document.getElementById(cardId);
-    if (!card) return;
-    card.classList.add('unlocking');
-    setTimeout(() => card.classList.remove('unlocking'), 700);
-  }
-
-  window.groupJamCombo = function(stage, newUnlocked) {
-    if (newUnlocked > unlockedStages) {
-      unlockedStages = newUnlocked;
-      renderState();
-      flashUnlock('card-' + newUnlocked);
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        const newBtn = document.createElement('a');
+        newBtn.href = href;
+        newBtn.className = 'play-btn';
+        newBtn.id = btnId;
+        newBtn.textContent = btnText;
+        btn.replaceWith(newBtn);
+      }
     }
-  };
 
-  window.addEventListener('message', e => {
-    if (e.data && e.data.type === 'groupJamCombo') window.groupJamCombo(e.data.stage, e.data.combo);
-  });
+    function updateProgress() {
+      const stages = unlockedStages - 1;
+      const total  = 3;
+      const pct    = Math.min(100, Math.round((stages / total) * 100));
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressText').textContent = stages + ' / ' + total + ' STAGES';
+    }
 
-  document.querySelectorAll('.game-card:not(.locked-card)').forEach(card => {
-    card.addEventListener('mouseenter', () => card.style.filter = 'brightness(1.08)');
-    card.addEventListener('mouseleave', () => card.style.filter = '');
-  });
-</script>
+    renderState();
+
+    // ── Dev unlock shortcut (type "unlock2", "unlock3", or "reset") ──────────
+    let keyBuffer = '';
+    document.addEventListener('keydown', e => {
+      keyBuffer += e.key.toLowerCase();
+      if (keyBuffer.length > 8) keyBuffer = keyBuffer.slice(-8);
+
+      if (keyBuffer.endsWith('unlock2')) {
+        unlockedStages = Math.max(unlockedStages, 2);
+        renderState();
+        keyBuffer = '';
+        flashUnlock('card-2');
+      }
+      if (keyBuffer.endsWith('unlock3')) {
+        unlockedStages = Math.max(unlockedStages, 3);
+        renderState();
+        keyBuffer = '';
+        flashUnlock('card-3');
+      }
+      if (keyBuffer.endsWith('reset')) {
+        location.reload();
+      }
+    });
+
+    function flashUnlock(cardId) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+      card.classList.add('unlocking');
+      setTimeout(() => card.classList.remove('unlocking'), 700);
+    }
+
+    // ── Global combo hook for same-origin game pages ─────────────────────────
+    window.groupJamCombo = function (stage, newUnlocked) {
+      if (newUnlocked > unlockedStages) {
+        unlockedStages = newUnlocked;
+        renderState();
+        flashUnlock('card-' + newUnlocked);
+      }
+    };
+
+    // ── Window message listener (for iframes or popups) ──────────────────────
+    window.addEventListener('message', e => {
+      if (e.data && e.data.type === 'groupJamCombo') {
+        window.groupJamCombo(e.data.stage, e.data.combo);
+      }
+    });
+
+    // ── Card hover brightness ────────────────────────────────────────────────
+    document.querySelectorAll('.game-card:not(.locked-card)').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.filter = 'brightness(1.08)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.filter = '';
+      });
+    });
+  </script>
+
 </body>
 </html>
