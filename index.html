@@ -605,7 +605,7 @@
         </div>
       </div>
 
-      <!-- Gate 2 → 3 (Final) -->
+      <!-- Gate 2 → 3 -->
       <div class="gate">
         <div class="gate-inner" id="gate-2">
           <span class="gate-icon">🔒</span>
@@ -613,22 +613,22 @@
         </div>
       </div>
 
-      <!-- ── GAME 3: FINALE (placeholder for future game) ── -->
+      <!-- ── GAME 3: BULLSEYE (Finale) ── -->
       <div class="game-card locked-card" id="card-3" style="--accent: var(--neon-yellow); --glow: rgba(255,230,0,0.4);">
-        <div class="lock-overlay"><span class="lock-icon">🏆</span></div>
+        <div class="lock-overlay"><span class="lock-icon">🎯</span></div>
         <div class="card-inner">
           <div class="card-num">03</div>
           <div class="card-body">
             <div class="card-tag">FINAL STAGE</div>
-            <div class="card-title">??? COMING SOON</div>
-            <div class="card-desc">Clear the previous stages to reveal the final challenge. Are you ready?</div>
+            <div class="card-title">BULLSEYE</div>
+            <div class="card-desc">Draw your bow, read the wind, and hit the mark. One bullseye wins it all.</div>
             <div class="combo-req" id="req-3">
-              <span>STATUS:</span>
-              <span class="req-val" id="req-val-3">LOCKED</span>
+              <span>OBJECTIVE:</span>
+              <span class="req-val" id="req-val-3">HIT BULLSEYE</span>
             </div>
           </div>
           <div class="card-cta">
-            <div class="locked-btn" id="btn-3">🏆 FINALE</div>
+            <div class="locked-btn" id="btn-3">🔒 LOCKED</div>
           </div>
         </div>
       </div>
@@ -731,7 +731,7 @@
         unlockCard(2, 'gate-1', 'gate-label-1', 'STAGE 2 UNLOCKED ✓', 'req-1', 'btn-2', 'pianotiles.html', '▶ PLAY');
       }
       if (unlockedStages >= 3) {
-        unlockCard(3, 'gate-2', 'gate-label-2', 'FINAL STAGE UNLOCKED ✓', 'req-2', 'btn-3', '#', '▶ PLAY');
+        unlockCard(3, 'gate-2', 'gate-label-2', 'FINAL STAGE UNLOCKED ✓', 'req-2', 'btn-3', 'bullseye.html', '▶ PLAY');
       }
 
       if (unlockedStages >= 2) {
