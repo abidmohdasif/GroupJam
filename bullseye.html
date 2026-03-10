@@ -47,20 +47,15 @@
     .ammo-pip.used{background:#2a2a2a;box-shadow:none;}
     #inGameBackBtn{position:absolute;top:50%;right:1rem;transform:translateY(-50%);font-family:var(--display);font-size:.75rem;letter-spacing:.15em;color:rgba(255,255,255,.22);background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.3rem .8rem;cursor:pointer;transition:all .2s;pointer-events:all;}
     #inGameBackBtn:hover{color:var(--accent2);border-color:var(--accent2);}
-
-    /* WIND BOX */
     #windBox{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:51;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.7);border:1.5px solid rgba(255,255,255,.18);border-radius:8px;padding:7px 20px;pointer-events:none;font-family:var(--display);letter-spacing:.1em;backdrop-filter:blur(4px);}
     #windLabel{font-size:.6rem;letter-spacing:.3em;color:rgba(255,255,255,.4);}
     #windVal{font-size:1.5rem;}
     #windDirIcon{font-size:1.2rem;transition:transform .5s;}
-
-    /* HOLD BAR */
     #holdBarWrap{position:fixed;bottom:0;left:0;right:0;z-index:51;display:flex;align-items:center;gap:10px;padding:8px 1.2rem 12px;background:linear-gradient(to top,rgba(0,0,0,.75),transparent);}
     #holdLabel{font-size:.6rem;letter-spacing:.25em;color:rgba(255,255,255,.4);white-space:nowrap;width:165px;}
     #holdBarBg{flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;}
     #holdBarFill{height:100%;width:0%;border-radius:4px;transition:width .05s,background .2s;}
     #lastHit{font-family:var(--display);font-size:1rem;letter-spacing:.2em;min-width:140px;text-align:right;}
-
     .score-popup{position:fixed;font-family:var(--display);pointer-events:none;z-index:200;animation:popFloat 1.5s ease forwards;text-align:center;white-space:nowrap;}
     @keyframes popFloat{0%{transform:translateY(0) scale(.6);opacity:0;}20%{transform:translateY(-14px) scale(1.2);opacity:1;}75%{transform:translateY(-50px) scale(1);opacity:1;}100%{transform:translateY(-80px) scale(.9);opacity:0;}}
     #countdown{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(5,5,10,.85);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s;}
@@ -75,10 +70,11 @@
 </head>
 <body>
 
+<!-- Screens render on top of everything via z-index:100 -->
 <div id="startScreen" class="screen">
   <div class="logo">BULLSEYE</div>
   <div class="subtitle">Aim · Hold · Release</div>
-  <div class="song-credit">🎯 CONSECUTIVE ARCADE</div>
+  <div class="song-credit">🎯 CONSECUTIVE ARCADE — FINAL STAGE</div>
   <a href="index.html" class="arcade-back">← ARCADE HUB</a>
   <div class="ring-legend">
     <div class="ring-item"><div class="ring-dot" style="background:#FFD700;box-shadow:0 0 6px #FFD700"></div><div class="ring-text">HIT THE BULLSEYE TO WIN</div></div>
@@ -97,7 +93,7 @@
     BULLSEYES &nbsp;&nbsp;<span id="finalBullseyes">0</span> / 5<br>
     ARROWS LEFT &nbsp;&nbsp;<span id="finalArrowsLeft">0</span>
   </div>
-  <div id="unlockBadge" style="display:none;background:linear-gradient(135deg,rgba(57,255,20,0.15),rgba(0,245,255,0.1));border:1.5px solid #39ff14;border-radius:4px;padding:.7rem 1.8rem;margin-bottom:1rem;font-family:var(--display);font-size:1.1rem;letter-spacing:.15em;color:#39ff14;text-shadow:0 0 12px #39ff14;text-align:center;">✅ ARCADE MASTER — HEAD BACK TO HUB!</div>
+  <div id="unlockBadge" style="display:none;background:linear-gradient(135deg,rgba(57,255,20,0.15),rgba(0,245,255,0.1));border:1.5px solid #39ff14;border-radius:4px;padding:.7rem 1.8rem;margin-bottom:1rem;font-family:var(--display);font-size:1.1rem;letter-spacing:.15em;color:#39ff14;text-shadow:0 0 12px #39ff14;text-align:center;">🏆 ARCADE MASTER — HEAD BACK TO HUB!</div>
   <div class="btn-row">
     <button class="btn" id="restartBtn">TRY AGAIN</button>
     <button class="btn-arcade" id="arcadeBtn">← ARCADE HUB</button>
@@ -162,14 +158,12 @@ let W, H;
 function resize(){ W=bgCanvas.width=window.innerWidth; H=bgCanvas.height=window.innerHeight; }
 resize();
 
-// Stars for arcade night sky
 const stars = Array.from({length:180},()=>({
   x: Math.random(), y: Math.random()*0.62,
   r: 0.3+Math.random()*1.1,
   twinkle: Math.random()*Math.PI*2,
   speed: 0.008+Math.random()*0.018
 }));
-// City silhouette buildings
 let cityBuildings = [];
 function buildCity(){
   cityBuildings=[];
@@ -222,9 +216,8 @@ function playSound(type){
   }
 }
 
-/* ── NEW WIND PER SHOT ── */
 function rollWind(){
-  gs.wind    = 0.4 + Math.random()*4.6;   // 0.4..5.0
+  gs.wind    = 0.4 + Math.random()*4.6;
   gs.windDir = Math.random()<0.5 ? 1 : -1;
   updateWindHUD();
 }
@@ -239,7 +232,6 @@ function updateWindHUD(){
   di.style.color  = el.style.color;
 }
 
-/* ── HIT DETECTION ── */
 function getHit(nx,ny){
   const tr=targetRect(), dx=nx*W-tr.cx, dy=ny*H-tr.cy;
   const frac=Math.hypot(dx,dy)/tr.r;
@@ -247,7 +239,6 @@ function getHit(nx,ny){
   return {points:0,label:'MISS',ring:-1,frac};
 }
 
-/* ── SHOOT ── */
 function shoot(){
   if(!gs.running||gs.ammoLeft<=0) return;
   const tr=targetRect();
@@ -279,14 +270,12 @@ function shoot(){
 
 function showPopup(sx,sy,hit,isBullseye){
   const el=document.createElement('div'); el.className='score-popup';
-  const cols={BULLSEYE:'#FFD700',MISS:'#f52a7c'};
   const col=isBullseye?'#FFD700':hit.points>0?'rgba(255,255,255,0.6)':'#f52a7c';
-  el.style.cssText=`left:${sx-40}px;top:${sy-50}px;color:${col};font-size:${isBullseye?38:24}px;text-shadow:0 2px 10px #000a;letter-spacing:1px;`;
+  el.style.cssText=`left:${sx-40}px;top:${sy-50}px;color:${col};font-size:${isBullseye?38:24}px;text-shadow:0 2px 10px #000a;letter-spacing:1px;font-family:var(--display);`;
   el.innerHTML=isBullseye?`<div>🎯</div><div style="font-size:.55em;letter-spacing:3px">BULLSEYE!</div>`:hit.points>0?`<div style="font-size:.7em;opacity:.6">${hit.label}</div>`:`<div>MISS</div>`;
   document.body.appendChild(el); setTimeout(()=>el.remove(),1600);
 }
 
-/* ── HUD ── */
 function updateHUD(){
   document.getElementById('scoreVal').textContent=gs.bullseyes;
   document.getElementById('bestVal').textContent='1';
@@ -306,9 +295,6 @@ function updateHUD(){
   }
 }
 
-/* ══════════════════════════════════════════
-   RENDER
-══════════════════════════════════════════ */
 function renderScene(ts){
   bgCtx.clearRect(0,0,W,H);
   const dt = ts&&lastTs ? Math.min(ts-lastTs,50) : 16;
@@ -324,16 +310,12 @@ function renderScene(ts){
 }
 
 function drawNightSky(dt){
-  // Deep space gradient — matches stackbuilder/index palette
   const sky=bgCtx.createLinearGradient(0,0,0,H);
   sky.addColorStop(0,'#0a0a2e');
   sky.addColorStop(0.45,'#0d1540');
   sky.addColorStop(0.72,'#1a0a30');
   sky.addColorStop(1,'#06060f');
   bgCtx.fillStyle=sky; bgCtx.fillRect(0,0,W,H);
-
-  // Twinkling stars
-  const t=Date.now()*0.001;
   stars.forEach(s=>{
     s.twinkle+=0.018;
     const alpha=Math.max(0, 0.25+Math.sin(s.twinkle)*0.55);
@@ -344,8 +326,6 @@ function drawNightSky(dt){
     bgCtx.fill();
   });
   bgCtx.globalAlpha=1;
-
-  // Subtle neon horizon glow (cyan tint like index.html)
   const hg=bgCtx.createLinearGradient(0,H*0.55,0,H*0.72);
   hg.addColorStop(0,'rgba(0,245,255,0.07)');
   hg.addColorStop(1,'rgba(0,245,255,0)');
@@ -354,76 +334,47 @@ function drawNightSky(dt){
 
 function drawCityGround(){
   const groundY = H*0.62;
-
-  // Ground fill — dark like arcade panel
   const gf=bgCtx.createLinearGradient(0,groundY,0,H);
   gf.addColorStop(0,'#0e1625');
   gf.addColorStop(0.3,'#0a1020');
   gf.addColorStop(1,'#06060f');
   bgCtx.fillStyle=gf; bgCtx.fillRect(0,groundY,W,H-groundY);
-
-  // City silhouette buildings
   bgCtx.fillStyle='#0e1625';
-  cityBuildings.forEach(b=>{
-    bgCtx.fillRect(b.x, groundY-b.h, b.w, b.h);
-  });
-
-  // Lit windows
+  cityBuildings.forEach(b=>{ bgCtx.fillRect(b.x, groundY-b.h, b.w, b.h); });
   cityBuildings.forEach(b=>{
     for(let wy=groundY-b.h+8; wy<groundY-8; wy+=14){
       for(let wx=b.x+4; wx<b.x+b.w-4; wx+=9){
         const lit=Math.sin(wx*3.7+wy*1.9+42)>0.3;
-        if(lit){
-          bgCtx.fillStyle='rgba(255,220,80,0.32)';
-          bgCtx.fillRect(wx,wy,4,6);
-        }
+        if(lit){ bgCtx.fillStyle='rgba(255,220,80,0.32)'; bgCtx.fillRect(wx,wy,4,6); }
       }
     }
   });
-
-  // Ground neon line (subtle cyan like stack builder)
-  bgCtx.strokeStyle='rgba(0,255,200,0.18)';
-  bgCtx.lineWidth=1.5;
+  bgCtx.strokeStyle='rgba(0,255,200,0.18)'; bgCtx.lineWidth=1.5;
   bgCtx.beginPath(); bgCtx.moveTo(0,groundY); bgCtx.lineTo(W,groundY); bgCtx.stroke();
-
-  // Ground texture lines
-  for(let i=0;i<6;i++){
-    const ly=groundY+i*H*0.065;
-    bgCtx.strokeStyle=`rgba(0,0,0,${0.15+i*0.04})`;
-    bgCtx.lineWidth=1;
-    bgCtx.beginPath(); bgCtx.moveTo(0,ly); bgCtx.lineTo(W,ly); bgCtx.stroke();
-  }
 }
 
 function drawFences(){
-  // Left fence — runs away from viewer along left side of lane
   drawFenceSection(W*.07, H*.72, W*.30, H*.63, 8, true);
-  // Right fence — runs away from viewer along right side of lane
   drawFenceSection(W*.93, H*.72, W*.70, H*.63, 8, false);
 }
 
-function drawFenceSection(x1,y1,x2,y2,posts,leftSide){
+function drawFenceSection(x1,y1,x2,y2,posts){
   const dx=(x2-x1)/(posts-1), dy=(y2-y1)/(posts-1);
-  // Two horizontal rails that converge with perspective
   const railOffsets = [0.28, 0.58];
-  railOffsets.forEach(t=>{
-    const ry1 = y1 - (y1-y2)*0; // rails sit along the post tops
+  railOffsets.forEach(()=>{
     bgCtx.beginPath();
-    bgCtx.moveTo(x1, y1 - t*18);
-    bgCtx.lineTo(x2, y2 - t*10);
+    bgCtx.moveTo(x1, y1 - 0.28*18);
+    bgCtx.lineTo(x2, y2 - 0.28*10);
     bgCtx.strokeStyle='rgba(175,130,70,.8)'; bgCtx.lineWidth=2.5; bgCtx.stroke();
   });
-  // Posts — taller near viewer, shorter in distance
   for(let i=0;i<posts;i++){
-    const t  = i/(posts-1); // 0=near, 1=far
-    const px = x1+dx*i, py = y1+dy*i;
-    const postH = 22*(1-t*0.45); // perspective scale
-    const postW = 7*(1-t*0.4);
+    const t=i/(posts-1);
+    const px=x1+dx*i, py=y1+dy*i;
+    const postH=22*(1-t*0.45), postW=7*(1-t*0.4);
     const pg=bgCtx.createLinearGradient(px-postW/2,0,px+postW/2,0);
     pg.addColorStop(0,'rgba(110,70,25,.9)'); pg.addColorStop(0.5,'rgba(165,115,50,.9)'); pg.addColorStop(1,'rgba(95,60,20,.9)');
     bgCtx.fillStyle=pg;
     bgCtx.fillRect(px-postW/2, py-postH, postW, postH+4);
-    // Post cap
     bgCtx.fillStyle='rgba(195,150,75,.85)';
     bgCtx.fillRect(px-postW/2-1, py-postH-3, postW+2, 4);
   }
@@ -432,26 +383,18 @@ function drawFenceSection(x1,y1,x2,y2,posts,leftSide){
 function drawLane(){
   const tr=targetRect();
   const laneW=W*.46;
-  // Lane surface — dark ground tone
   const lf=bgCtx.createLinearGradient(0,H,0,tr.cy);
   lf.addColorStop(0,'rgba(14,22,37,.9)'); lf.addColorStop(1,'rgba(10,16,32,0)');
   bgCtx.fillStyle=lf;
   bgCtx.beginPath(); bgCtx.moveTo(W/2-laneW/2,H); bgCtx.lineTo(tr.cx,tr.cy); bgCtx.lineTo(W/2+laneW/2,H); bgCtx.closePath(); bgCtx.fill();
-
-  // Neon boundary lines — cyan glow matching arcade theme
   bgCtx.strokeStyle='rgba(0,245,255,0.55)'; bgCtx.lineWidth=2.5; bgCtx.setLineDash([16,10]);
   bgCtx.shadowColor='rgba(0,245,255,0.4)'; bgCtx.shadowBlur=8;
   bgCtx.beginPath(); bgCtx.moveTo(W/2-laneW/2,H); bgCtx.lineTo(tr.cx,tr.cy); bgCtx.stroke();
   bgCtx.beginPath(); bgCtx.moveTo(W/2+laneW/2,H); bgCtx.lineTo(tr.cx,tr.cy); bgCtx.stroke();
-  bgCtx.shadowBlur=0;
-  bgCtx.setLineDash([]);
-
-  // Center dash — dimmer
+  bgCtx.shadowBlur=0; bgCtx.setLineDash([]);
   bgCtx.strokeStyle='rgba(0,245,255,0.18)'; bgCtx.lineWidth=1.5; bgCtx.setLineDash([8,14]);
   bgCtx.beginPath(); bgCtx.moveTo(W/2,H); bgCtx.lineTo(tr.cx,tr.cy); bgCtx.stroke();
   bgCtx.setLineDash([]);
-
-  // Post & stand
   const postBot=H*.73, postTop=tr.cy+tr.r+3;
   const pg=bgCtx.createLinearGradient(tr.cx-4,0,tr.cx+4,0);
   pg.addColorStop(0,'#3a2808'); pg.addColorStop(0.5,'#6a4514'); pg.addColorStop(1,'#3a2808');
@@ -459,7 +402,6 @@ function drawLane(){
   bgCtx.strokeStyle='#5a3a0e'; bgCtx.lineWidth=5;
   bgCtx.beginPath(); bgCtx.moveTo(tr.cx,postBot); bgCtx.lineTo(tr.cx-22,postBot+14); bgCtx.stroke();
   bgCtx.beginPath(); bgCtx.moveTo(tr.cx,postBot); bgCtx.lineTo(tr.cx+22,postBot+14); bgCtx.stroke();
-  // Post shadow
   bgCtx.save(); bgCtx.globalAlpha=0.25; bgCtx.fillStyle='#000';
   bgCtx.beginPath(); bgCtx.ellipse(tr.cx+8,postBot+14,18,5,0,0,Math.PI*2); bgCtx.fill(); bgCtx.restore();
 }
@@ -469,23 +411,18 @@ function drawTarget(){
   let cx=tr.cx, cy=tr.cy;
   if(gs.targetShake>0){ cx+=(Math.random()-.5)*gs.targetShake*.7; cy+=(Math.random()-.5)*gs.targetShake*.35; gs.targetShake=Math.max(0,gs.targetShake-1.8); }
   const bs=tr.r*2.6;
-  // Board drop shadow
   bgCtx.save(); bgCtx.shadowColor='rgba(0,0,0,0.6)'; bgCtx.shadowBlur=20; bgCtx.shadowOffsetX=4; bgCtx.shadowOffsetY=8;
   bgCtx.fillStyle='#ede8d8'; bgCtx.fillRect(cx-bs/2,cy-bs/2,bs,bs); bgCtx.restore();
-  // Board grain lines
   bgCtx.save(); bgCtx.globalAlpha=.06; bgCtx.strokeStyle='#888'; bgCtx.lineWidth=1;
   for(let gx=cx-bs/2+6;gx<cx+bs/2;gx+=10){ bgCtx.beginPath(); bgCtx.moveTo(gx,cy-bs/2); bgCtx.lineTo(gx,cy+bs/2); bgCtx.stroke(); }
   bgCtx.restore();
-  // Board border
   bgCtx.strokeStyle='#b8a880'; bgCtx.lineWidth=2; bgCtx.strokeRect(cx-bs/2,cy-bs/2,bs,bs);
-  // Rings outside→in
   for(let i=RINGS.length-1;i>=0;i--){
     const r=tr.r*RING_FRACS[i];
     bgCtx.beginPath(); bgCtx.arc(cx,cy,r,0,Math.PI*2);
     bgCtx.fillStyle=RINGS[i].color; bgCtx.fill();
     bgCtx.strokeStyle=RINGS[i].stroke; bgCtx.lineWidth=1.3; bgCtx.stroke();
   }
-  // Center pin
   bgCtx.beginPath(); bgCtx.arc(cx,cy,2.5,0,Math.PI*2); bgCtx.fillStyle='#111'; bgCtx.fill();
 }
 
@@ -521,17 +458,14 @@ function drawReticle(){
 function drawBowArm(){
   const bc=document.getElementById('bowArm'), bctx=bc.getContext('2d');
   bctx.clearRect(0,0,180,340);
-  // Bow
   const bg=bctx.createLinearGradient(80,0,140,0);
   bg.addColorStop(0,'#6a3a10'); bg.addColorStop(0.5,'#9a5820'); bg.addColorStop(1,'#5a2e08');
   bctx.strokeStyle=bg; bctx.lineWidth=10; bctx.lineCap='round';
   bctx.beginPath(); bctx.moveTo(140,340); bctx.bezierCurveTo(105,255,75,155,98,72); bctx.stroke();
-  // String
   const pull=gs.isHolding?gs.holdPct*24:0;
   bctx.strokeStyle=`rgba(230,210,160,${gs.isHolding?.5+gs.holdPct*.5:.55})`;
   bctx.lineWidth=gs.isHolding?2.5:1.5;
   bctx.beginPath(); bctx.moveTo(98,72); bctx.quadraticCurveTo(118+pull,208,140,340); bctx.stroke();
-  // Arrow nocked
   if(gs.ammoLeft>0){
     bctx.strokeStyle='#7a4a18'; bctx.lineWidth=3;
     bctx.beginPath(); bctx.moveTo(102,82); bctx.lineTo(132,315); bctx.stroke();
@@ -542,14 +476,12 @@ function drawBowArm(){
   }
 }
 
-/* ── GAME LOOP ── */
 function gameLoop(ts){
   if(!gs.running) return;
   renderScene(ts);
   animId=requestAnimationFrame(gameLoop);
 }
 
-/* ── INPUT ── */
 const scene=document.getElementById('scene');
 function getXY(e){ const cx=e.touches?e.touches[0].clientX:e.clientX, cy=e.touches?e.touches[0].clientY:e.clientY; return{nx:cx/W,ny:cy/H}; }
 
@@ -565,10 +497,14 @@ function startHold(){ gs.isHolding=true; gs.holdStart=performance.now(); gs.hold
 function releaseShot(){ clearInterval(holdInterval);holdInterval=null; gs.isHolding=false; gs.holdPct=0; playSound('release'); shoot(); updateHUD(); }
 function cancelHold(){ clearInterval(holdInterval);holdInterval=null; gs.isHolding=false; gs.holdPct=0; updateHUD(); }
 
-/* ── COUNTDOWN ── */
-function runCountdown(cb){ let n=3; const el=document.getElementById('countdown'),num=document.getElementById('countdownNum'); el.classList.add('show'); num.textContent=n; function tick(){ n--; if(n<=0){el.classList.remove('show');cb();return;} num.textContent=n;num.style.animation='none';void num.offsetWidth;num.style.animation='';setTimeout(tick,1000); } setTimeout(tick,1000); }
+function runCountdown(cb){
+  let n=3;
+  const el=document.getElementById('countdown'),num=document.getElementById('countdownNum');
+  el.classList.add('show'); num.textContent=n;
+  function tick(){ n--; if(n<=0){el.classList.remove('show');cb();return;} num.textContent=n;num.style.animation='none';void num.offsetWidth;num.style.animation='';setTimeout(tick,1000); }
+  setTimeout(tick,1000);
+}
 
-/* ── GAME FLOW ── */
 function startGame(){
   resize(); ensureAudio();
   gs={running:false,score:0,bestScore:gs.bestScore,bullseyes:0,ammoLeft:MAX_ARROWS,arrows:[],hits:0,bestShot:null,isHolding:false,holdStart:0,holdPct:0,aimX:.5,aimY:.42,hasAim:false,wind:0,windDir:1,targetShake:0};
@@ -591,12 +527,10 @@ function endGame(won){
   gs.running=false; cancelHold(); cancelAnimationFrame(animId);
   const titleEl=document.getElementById('overTitle');
   if(won){
-    // Fire unlock for stage 3 (this is the final game)
     sessionStorage.setItem('gj_unlocked','3');
     titleEl.textContent='BULLSEYE!';
     titleEl.style.color='var(--accent3)';
     titleEl.style.textShadow='0 0 30px var(--accent3)';
-    // Show unlock badge + highlight arcade button
     const badge=document.getElementById('unlockBadge');
     const arcBtn=document.getElementById('arcadeBtn');
     if(badge){ badge.style.display='block'; }
@@ -620,10 +554,10 @@ function quitToStart(){
   renderScene();
 }
 
-document.getElementById('startBtn').addEventListener('click',startGame);
-document.getElementById('restartBtn').addEventListener('click',startGame);
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.getElementById('restartBtn').addEventListener('click', startGame);
 document.getElementById('arcadeBtn').addEventListener('click', goToArcadeWithUnlock);
-document.getElementById('inGameBackBtn').addEventListener('click',quitToStart);
+document.getElementById('inGameBackBtn').addEventListener('click', quitToStart);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&gs.running) quitToStart(); });
 
 resize(); renderScene();
