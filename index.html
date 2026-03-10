@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CONSECUTIVE — In The Air Tonight</title>
+  <title>CONSECUTIVE — Rhythm Game</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
@@ -33,8 +33,7 @@
     #startScreen { background:radial-gradient(ellipse at 50% 40%, #0e0e22 0%, #05050a 70%); }
 
     .logo { font-family:var(--display); font-size:clamp(4rem,12vw,9rem); letter-spacing:.12em; color:var(--accent); text-shadow:0 0 20px var(--accent),0 0 60px rgba(42,245,184,.4),0 0 120px rgba(42,245,184,.2); animation:pulse 2.4s ease-in-out infinite; line-height:1; }
-    .subtitle { font-size:.85rem; letter-spacing:.35em; color:rgba(255,255,255,.45); text-transform:uppercase; margin-top:.6rem; margin-bottom:.5rem; }
-    .song-credit { font-size:.7rem; letter-spacing:.2em; color:rgba(42,245,184,.6); margin-bottom:1.8rem; }
+    .subtitle { font-size:.85rem; letter-spacing:.35em; color:rgba(255,255,255,.45); text-transform:uppercase; margin-top:.6rem; margin-bottom:2rem; }
 
     .arcade-back { display:inline-flex; align-items:center; gap:8px; font-family:var(--display); font-size:1rem; letter-spacing:.2em; color:rgba(255,255,255,.3); text-decoration:none; border:1px solid rgba(255,255,255,.1); border-radius:3px; padding:.35rem 1rem; margin-bottom:1.8rem; transition:all .2s; }
     .arcade-back:hover { color:var(--accent); border-color:var(--accent); box-shadow:0 0 12px rgba(42,245,184,.2); }
@@ -51,25 +50,6 @@
     .btn { font-family:var(--display); font-size:1.6rem; letter-spacing:.2em; padding:.7rem 3rem; background:transparent; border:2px solid var(--accent); color:var(--accent); cursor:pointer; border-radius:4px; transition:all .2s; box-shadow:0 0 18px rgba(42,245,184,.25); }
     .btn:hover { background:var(--accent); color:#05050a; box-shadow:0 0 36px rgba(42,245,184,.6); }
     .hint { margin-top:1.2rem; font-size:.7rem; letter-spacing:.15em; opacity:.35; }
-
-    /* ── Countdown overlay ── */
-    #countdown {
-      position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
-      background:rgba(5,5,10,.85); backdrop-filter:blur(4px);
-      opacity:0; pointer-events:none; transition:opacity .3s;
-    }
-    #countdown.show { opacity:1; pointer-events:all; }
-    .countdown-num {
-      font-family:var(--display); font-size:12rem; color:var(--accent);
-      text-shadow:0 0 40px var(--accent),0 0 100px rgba(42,245,184,.4);
-      animation:countPop .9s ease-out;
-    }
-    @keyframes countPop {
-      0%   { transform:scale(2);   opacity:0; }
-      30%  { transform:scale(1);   opacity:1; }
-      75%  { transform:scale(1);   opacity:1; }
-      100% { transform:scale(0.6); opacity:0; }
-    }
 
     /* ── Game Over ── */
     #gameOverScreen { background:rgba(5,5,10,.92); gap:0; }
@@ -94,22 +74,6 @@
     #streakVal { color:var(--accent3); }
     #multVal   { font-size:1rem; opacity:.7; color:var(--accent3); }
 
-    /* ── Progress bar ── */
-    #progressBar {
-      width:100%; max-width:520px; height:3px; background:rgba(255,255,255,.08);
-      position:relative; z-index:10;
-    }
-    #progressFill {
-      height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2));
-      box-shadow:0 0 8px var(--accent); transition:width .5s linear;
-    }
-    /* Drum break marker */
-    #drumMarker {
-      position:absolute; top:-3px; width:3px; height:9px;
-      background:#f5c12a; box-shadow:0 0 6px #f5c12a;
-      left: 74.7%; /* 219.4/293.6 */
-    }
-
     /* ── Back-to-start button (in-game) ── */
     #inGameBackBtn {
       position:absolute; top:50%; right:0; transform:translateY(-50%);
@@ -123,24 +87,6 @@
 
     /* ── Song label ── */
     #songLabel { position:absolute; bottom:90px; right:8px; font-size:.6rem; letter-spacing:.15em; color:rgba(255,255,255,.18); pointer-events:none; z-index:10; writing-mode:vertical-rl; }
-
-    /* ── DRUM BREAK ALERT ── */
-    #drumAlert {
-      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      font-family:var(--display); font-size:clamp(2rem,6vw,4rem);
-      letter-spacing:.2em; color:#f5c12a;
-      text-shadow:0 0 20px #f5c12a, 0 0 50px rgba(245,193,42,.5);
-      pointer-events:none; z-index:150; opacity:0;
-      white-space:nowrap;
-    }
-    #drumAlert.fire { animation:drumAlertAnim 2s ease-out forwards; }
-    @keyframes drumAlertAnim {
-      0%   { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
-      15%  { opacity:1; transform:translate(-50%,-50%) scale(1.1); }
-      35%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
-      80%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
-      100% { opacity:0; transform:translate(-50%,-50%) scale(0.9) translateY(-30px); }
-    }
 
     /* ── Lanes ── */
     #laneWrap { position:relative; flex:1; width:100%; max-width:520px; display:flex; }
@@ -159,18 +105,6 @@
     .note[data-lane="3"] { background:linear-gradient(180deg,rgba(245,193,42,.9),rgba(245,193,42,.6)); color:#05050a; box-shadow:0 0 16px rgba(245,193,42,.5); }
     .note.hit  { animation:noteHit  .25s ease-out forwards; }
     .note.miss { animation:noteMiss .3s  ease-out forwards; }
-
-    /* ── Drum break note — gold & pulsing ── */
-    .note.drum-break-note {
-      background:linear-gradient(180deg,rgba(255,220,0,.95),rgba(245,140,0,.85)) !important;
-      color:#05050a !important;
-      box-shadow:0 0 24px rgba(255,200,0,.8), 0 0 48px rgba(255,180,0,.4) !important;
-      animation:drumNotePulse .3s ease-in-out infinite alternate;
-    }
-    @keyframes drumNotePulse {
-      from { box-shadow:0 0 16px rgba(255,200,0,.7); }
-      to   { box-shadow:0 0 36px rgba(255,200,0,1), 0 0 60px rgba(255,160,0,.6); }
-    }
 
     .particle { position:absolute; width:6px; height:6px; border-radius:50%; pointer-events:none; z-index:6; animation:particleFly .5s ease-out forwards; }
     .combo-burst { position:absolute; left:50%; transform:translateX(-50%); bottom:110px; font-family:var(--display); font-size:1.4rem; letter-spacing:.1em; color:var(--accent3); text-shadow:0 0 12px var(--accent3); pointer-events:none; z-index:8; animation:burstPop .6s ease-out forwards; white-space:nowrap; }
@@ -212,7 +146,6 @@
 <div id="startScreen" class="screen">
   <div class="logo">CONSECUTIVE</div>
   <div class="subtitle">Rhythm · Precision · Streak</div>
-  <div class="song-credit">♪ IN THE AIR TONIGHT — PHIL COLLINS</div>
   <a href="index.html" class="arcade-back">← ARCADE HUB</a>
   <div class="key-legend">
     <div class="key-box"><div class="key-cap d">D</div><div class="key-label">LANE 1</div></div>
@@ -221,7 +154,7 @@
     <div class="key-box"><div class="key-cap k">K</div><div class="key-label">LANE 4</div></div>
   </div>
   <button class="btn" id="startBtn">START GAME</button>
-  <div class="hint">HIT 20 COMBO TO UNLOCK STAGE 3 — THE FINALE &nbsp;|&nbsp; ⚡ SURVIVE THE DRUM BREAK AT 3:40</div>
+  <div class="hint">HIT 20 COMBO TO UNLOCK STAGE 3 — THE FINALE</div>
 </div>
 
 <!-- ── Game Over Screen ── -->
@@ -257,24 +190,11 @@
     </div>
     <button id="inGameBackBtn">■ QUIT</button>
   </div>
-
-  <!-- Song progress bar with drum break marker -->
-  <div id="progressBar">
-    <div id="progressFill"></div>
-    <div id="drumMarker" title="Drum Break!"></div>
-  </div>
-
   <div id="laneWrap">
     <div id="hitLine"></div>
   </div>
-  <div id="songLabel">IN THE AIR TONIGHT — PHIL COLLINS</div>
+  <div id="songLabel">ODE TO JOY — BEETHOVEN</div>
 </div>
-
-<!-- Countdown overlay -->
-<div id="countdown"><div class="countdown-num" id="countdownNum">3</div></div>
-
-<!-- Drum break alert -->
-<div id="drumAlert">🥁 DRUM BREAK!</div>
 
 <div id="missFlash"></div>
 
@@ -299,264 +219,47 @@
    CONFIG
 ════════════════════════════════════════════════════════ */
 const COMBO_REQUIRED = 20;
-const SONG_DURATION  = 293.64;
-const DRUM_BREAK_TIME = 219.4; // seconds — the iconic fill
 
 const CONFIG = {
   LANES:           ['D','F','J','K'],
   NOTE_HEIGHT:     48,
   HIT_LINE_BOTTOM: 80,
-  // Window opens wider before drum break to be forgiving
-  // during the fast fill section
-  HIT_WINDOW:      65,
-  NOTE_SPEED:      290,  // tuned for 95 BPM at this screen size
+  HIT_WINDOW:      60,
+  NOTE_SPEED:      300,
   POINTS_PER_HIT:  100,
 };
 
 /* ════════════════════════════════════════════════════════
-   SONG CHART — In The Air Tonight, Phil Collins
-   95 BPM, 4/4, D minor
-   ──────────────────────────────────────────────────────
-   Structure:
-     0:00–0:17   : Silence / intro — no notes
-     0:17–1:50   : Verse 1 — very sparse, one note every ~5s
-     1:50–3:20   : Build — every bar + beat 3 added
-     3:20–3:39   : Pre-drum tension — eighth notes
-     3:39–3:43   : THE DRUM BREAK — rapid fill, gold notes
-     3:43–end    : Full band — dense 4/4 with syncopation
+   SONG CHART
 ════════════════════════════════════════════════════════ */
-const SONG_CHART = [
-  [17.0, 0],
-  [22.053, 2],
-  [27.105, 1],
-  [32.158, 3],
-  [37.211, 0],
-  [42.263, 2],
-  [47.316, 0],
-  [52.368, 2],
-  [57.421, 1],
-  [62.474, 3],
-  [67.526, 0],
-  [72.579, 2],
-  [77.632, 0],
-  [82.684, 2],
-  [87.737, 1],
-  [92.789, 3],
-  [97.842, 0],
-  [102.895, 2],
-  [107.947, 0],
-  [110.0, 0],
-  [111.263, 1],
-  [112.526, 2],
-  [115.053, 1],
-  [116.316, 0],
-  [117.579, 3],
-  [120.105, 0],
-  [121.368, 1],
-  [122.632, 2],
-  [125.158, 1],
-  [126.421, 0],
-  [127.684, 3],
-  [130.211, 0],
-  [131.474, 1],
-  [132.737, 2],
-  [135.263, 1],
-  [136.526, 0],
-  [137.789, 3],
-  [140.316, 0],
-  [141.579, 1],
-  [142.842, 2],
-  [145.368, 1],
-  [146.632, 0],
-  [147.895, 3],
-  [150.421, 0],
-  [151.684, 1],
-  [152.947, 2],
-  [155.474, 1],
-  [156.737, 0],
-  [158.0, 3],
-  [160.526, 0],
-  [161.789, 1],
-  [163.053, 2],
-  [165.579, 1],
-  [166.842, 0],
-  [168.105, 3],
-  [170.632, 0],
-  [171.895, 1],
-  [173.158, 2],
-  [175.684, 1],
-  [176.947, 0],
-  [178.211, 3],
-  [180.737, 0],
-  [182.0, 1],
-  [183.263, 2],
-  [185.789, 1],
-  [187.053, 0],
-  [188.316, 3],
-  [190.842, 0],
-  [192.105, 1],
-  [193.368, 2],
-  [195.895, 1],
-  [197.158, 0],
-  [198.421, 3],
-  [200.0, 0],
-  [201.263, 2],
-  [202.526, 1],
-  [203.789, 3],
-  [205.053, 2],
-  [206.316, 0],
-  [207.579, 3],
-  [208.842, 1],
-  [210.105, 0],
-  [211.368, 2],
-  [212.632, 1],
-  [213.895, 3],
-  [215.158, 2],
-  [216.421, 0],
-  [217.684, 3],
-  [218.947, 1],
-  // ── THE DRUM BREAK (gold notes) ──
-  [219.4, 2],
-  [219.716, 3],
-  [220.032, 1],
-  [220.347, 2],
-  [220.663, 0],
-  [220.979, 3],
-  [221.295, 1],
-  [221.611, 0],
-  [221.926, 2],
-  [222.242, 1],
-  [222.558, 3],
-  [222.874, 2],
-  [223.189, 0],
-  [223.505, 1],
-  [223.821, 3],
-  [224.137, 2],
-  [224.453, 0],
-  // ── Full band section ──
-  [225.084, 2],
-  [225.4, 0],
-  [225.716, 1],
-  [226.347, 3],
-  [226.979, 0],
-  [227.611, 1],
-  [227.926, 3],
-  [228.242, 2],
-  [228.874, 3],
-  [229.505, 2],
-  [230.137, 0],
-  [230.453, 2],
-  [230.768, 3],
-  [231.4, 1],
-  [232.032, 1],
-  [232.663, 3],
-  [232.979, 1],
-  [233.295, 0],
-  [233.926, 2],
-  [234.558, 0],
-  [235.189, 2],
-  [235.505, 0],
-  [235.821, 1],
-  [236.453, 3],
-  [237.084, 0],
-  [237.716, 1],
-  [238.032, 3],
-  [238.347, 2],
-  [238.979, 3],
-  [239.611, 2],
-  [240.242, 0],
-  [240.558, 2],
-  [240.874, 3],
-  [241.505, 1],
-  [242.137, 1],
-  [242.768, 3],
-  [243.084, 1],
-  [243.4, 0],
-  [244.032, 2],
-  [244.663, 0],
-  [245.295, 2],
-  [245.611, 0],
-  [245.926, 1],
-  [246.558, 3],
-  [247.189, 0],
-  [247.821, 1],
-  [248.137, 3],
-  [248.453, 2],
-  [249.084, 3],
-  [249.716, 2],
-  [250.347, 0],
-  [250.663, 2],
-  [250.979, 3],
-  [251.611, 1],
-  [252.242, 1],
-  [252.874, 3],
-  [253.189, 1],
-  [253.505, 0],
-  [254.137, 2],
-  [254.768, 0],
-  [255.4, 2],
-  [255.716, 0],
-  [256.032, 1],
-  [256.663, 3],
-  [257.295, 0],
-  [257.926, 1],
-  [258.242, 3],
-  [258.558, 2],
-  [259.189, 3],
-  [259.821, 2],
-  [260.453, 0],
-  [260.768, 2],
-  [261.084, 3],
-  [261.716, 1],
-  [262.347, 1],
-  [262.979, 3],
-  [263.295, 1],
-  [263.611, 0],
-  [264.242, 2],
-  [264.874, 0],
-  [265.505, 2],
-  [265.821, 0],
-  [266.137, 1],
-  [266.768, 3],
-  [267.4, 0],
-  [268.032, 1],
-  [268.347, 3],
-  [268.663, 2],
-  [269.295, 3],
-  [269.926, 2],
-  [270.558, 0],
-  [270.874, 2],
-  [271.189, 3],
-  [271.821, 1],
-  [272.453, 1],
-  [273.084, 3],
-  [273.4, 1],
-  [273.716, 0],
-  [274.347, 2],
-  [274.979, 0],
-  [275.611, 2],
-  [275.926, 0],
-  [276.242, 1],
-  [276.874, 3],
-  [277.505, 0],
-  [278.137, 1],
-  [278.453, 3],
-  [278.768, 2],
-  [279.4, 3],
-  [280.032, 2],
-  [280.663, 0],
-  [280.979, 2],
-  [281.295, 3],
-  [281.926, 1],
-  [282.558, 1],
-  [283.189, 3],
-  [283.505, 1],
-  [283.821, 0],
-  [284.453, 2]
-];
+const SONG_BPM  = 128;
+const SONG_BEAT = 60 / SONG_BPM;
 
-// Which indices are drum-break notes (gold styling)
-const DRUM_BREAK_RANGE = [88, 104]; // indices in SONG_CHART
+function generateChart() {
+  const chart = [];
+  const patterns = [
+    [0,2,1,3],
+    [0,1,3,2],
+    [0,3,0,1],
+    [2,1,0,3],
+  ];
+  let t = 1.0;
+  for (let bar = 0; bar < 64; bar++) {
+    const pat = patterns[bar % patterns.length];
+    chart.push([t,              pat[0]]);
+    chart.push([t + SONG_BEAT,  pat[1]]);
+    chart.push([t + SONG_BEAT*2,pat[2]]);
+    chart.push([t + SONG_BEAT*3,pat[3]]);
+    if (bar % 4 === 3) {
+      chart.push([t + SONG_BEAT*0.5, (pat[0]+2)%4]);
+      chart.push([t + SONG_BEAT*2.5, (pat[2]+1)%4]);
+    }
+    t += SONG_BEAT * 4;
+  }
+  return chart.sort((a,b) => a[0]-b[0]);
+}
+
+const SONG_CHART = generateChart();
 
 /* ════════════════════════════════════════════════════════
    AUDIO
@@ -564,19 +267,21 @@ const DRUM_BREAK_RANGE = [88, 104]; // indices in SONG_CHART
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx   = null;
 
-const songAudio     = new Audio();
-songAudio.loop      = false;
-let   songLoaded    = false;
+const songAudio = new Audio();
+songAudio.loop  = false;
+let   songLoaded = false;
 let   usingSongFile = false;
 
 songAudio.src = 'song.mp3';
 songAudio.addEventListener('canplaythrough', () => {
-  songLoaded    = true;
+  songLoaded = true;
   usingSongFile = true;
   console.log('Audio ready — duration:', songAudio.duration.toFixed(2), 's');
+  const lbl = document.getElementById('songLabel');
+  if (lbl) lbl.textContent = '♪ NOW PLAYING';
 }, { once: true });
 songAudio.addEventListener('error', () => {
-  console.warn('song.mp3 not found — place song.mp3 next to this HTML file');
+  console.log('song.mp3 not found — using synth fallback');
   usingSongFile = false;
 });
 songAudio.load();
@@ -586,63 +291,89 @@ function ensureAudio() {
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
-// ── Sound effects ──
 function playSound(type, lane) {
   ensureAudio();
-  if (!audioCtx) return;
   const now = audioCtx.currentTime;
   const LANE_FREQS = [261.63, 329.63, 392.00, 523.25];
   const freq = LANE_FREQS[lane ?? 0];
 
   if (type === 'hit') {
-    const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
     osc.connect(g); g.connect(audioCtx.destination);
-    osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, now);
-    g.gain.setValueAtTime(0.18, now);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    g.gain.setValueAtTime(0.20, now);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
     osc.start(now); osc.stop(now + 0.2);
-  } else if (type === 'drum') {
-    // Snare-like hit for drum break
-    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.15, audioCtx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
-    const src = audioCtx.createBufferSource(), g = audioCtx.createGain();
-    src.buffer = buf; src.connect(g); g.connect(audioCtx.destination);
-    g.gain.setValueAtTime(0.35, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-    src.start(now);
   } else if (type === 'miss') {
-    const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
     osc.connect(g); g.connect(audioCtx.destination);
-    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, now);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(120, now);
     osc.frequency.exponentialRampToValueAtTime(50, now + .15);
-    g.gain.setValueAtTime(.18, now); g.gain.exponentialRampToValueAtTime(.001, now + .18);
+    g.gain.setValueAtTime(.18, now);
+    g.gain.exponentialRampToValueAtTime(.001, now + .18);
     osc.start(now); osc.stop(now + .2);
   } else if (type === 'combo') {
-    const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
     osc.connect(g); g.connect(audioCtx.destination);
-    osc.type = 'sine'; osc.frequency.setValueAtTime(freq * 2, now);
-    g.gain.setValueAtTime(.14, now); g.gain.exponentialRampToValueAtTime(.001, now + .22);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq * 2, now);
+    g.gain.setValueAtTime(.14, now);
+    g.gain.exponentialRampToValueAtTime(.001, now + .22);
     osc.start(now); osc.stop(now + .25);
   } else if (type === 'unlock') {
     [0, 0.1, 0.2].forEach((d, i) => {
       const o = audioCtx.createOscillator(), gn = audioCtx.createGain();
       o.connect(gn); gn.connect(audioCtx.destination);
-      o.type = 'sine'; o.frequency.setValueAtTime([880,1100,1320][i], now+d);
-      gn.gain.setValueAtTime(.15, now+d); gn.gain.exponentialRampToValueAtTime(.001, now+d+.18);
+      o.type = 'sine';
+      o.frequency.setValueAtTime([880,1100,1320][i], now+d);
+      gn.gain.setValueAtTime(.15, now+d);
+      gn.gain.exponentialRampToValueAtTime(.001, now+d+.18);
       o.start(now+d); o.stop(now+d+.22);
     });
   }
+}
+
+function playSynthFallback(startAudioTime) {
+  const notes = SONG_CHART.slice(0, 80);
+  notes.forEach(([tSec, lane]) => {
+    const t    = startAudioTime + tSec;
+    if (t < audioCtx.currentTime) return;
+    const FREQS = [261.63, 329.63, 392.00, 523.25];
+    const osc  = audioCtx.createOscillator();
+    const g    = audioCtx.createGain();
+    const filt = audioCtx.createBiquadFilter();
+    filt.type = 'lowpass'; filt.frequency.value = 2000;
+    osc.connect(filt); filt.connect(g); g.connect(audioCtx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(FREQS[lane], t);
+    g.gain.setValueAtTime(0.0, t);
+    g.gain.linearRampToValueAtTime(0.12, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    osc.start(t); osc.stop(t + 0.25);
+  });
 }
 
 /* ════════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════════ */
 const state = {
-  running: false, score: 0, streak: 0, bestStreak: 0, maxMult: 1,
-  totalHits: 0, notes: [], bestScore: 0, unlockFired: false,
-  songNoteIdx: 0, songStartedAt: 0, travelTime: 0,
-  drumAlertFired: false,
+  running:      false,
+  score:        0,
+  streak:       0,
+  bestStreak:   0,
+  maxMult:      1,
+  totalHits:    0,
+  notes:        [],
+  bestScore:    0,
+  unlockFired:  false,
+  songNoteIdx:  0,
+  songStartedAt: 0,
+  travelTime:   0,
 };
 
 /* ════════════════════════════════════════════════════════
@@ -664,16 +395,13 @@ const finalMult      = document.getElementById('finalMult');
 const missFlash      = document.getElementById('missFlash');
 const unlockBadge    = document.getElementById('unlockBadge');
 const inGameBackBtn  = document.getElementById('inGameBackBtn');
-const progressFill   = document.getElementById('progressFill');
-const drumAlert      = document.getElementById('drumAlert');
-const countdownEl    = document.getElementById('countdown');
-const countdownNum   = document.getElementById('countdownNum');
 const laneEls        = [];
 
 function buildLanes() {
-  laneEls.forEach(l => l.remove()); laneEls.length = 0;
+  laneEls.forEach(l => l.remove());
+  laneEls.length = 0;
   CONFIG.LANES.forEach((key, i) => {
-    const el = document.createElement('div');
+    const el    = document.createElement('div');
     el.className = 'lane'; el.dataset.lane = i;
     const label = document.createElement('div');
     label.className = 'lane-key'; label.textContent = key;
@@ -687,43 +415,43 @@ function buildLanes() {
    SONG-SYNCED NOTE SPAWNING
 ════════════════════════════════════════════════════════ */
 function getSongTime() {
-  if (usingSongFile && !songAudio.paused) return songAudio.currentTime;
+  if (usingSongFile && !songAudio.paused) {
+    return songAudio.currentTime;
+  }
   return (performance.now() - state.songStartedAt) / 1000;
 }
 
 function checkSongSpawns() {
-  const songTime  = getSongTime();
-  const travelSec = state.travelTime / 1000;
-
-  // Fire drum break alert ~4 seconds before
-  if (!state.drumAlertFired && songTime >= DRUM_BREAK_TIME - 4) {
-    state.drumAlertFired = true;
-    drumAlert.classList.remove('fire');
-    void drumAlert.offsetWidth; // reflow
-    drumAlert.classList.add('fire');
-  }
+  const songTime   = getSongTime();
+  const travelSec  = state.travelTime / 1000;
 
   while (state.songNoteIdx < SONG_CHART.length) {
     const [hitTime, lane] = SONG_CHART[state.songNoteIdx];
     if (songTime >= hitTime - travelSec) {
-      const isDrumBreak = state.songNoteIdx >= DRUM_BREAK_RANGE[0] &&
-                          state.songNoteIdx <= DRUM_BREAK_RANGE[1];
-      spawnNote(lane, hitTime, isDrumBreak);
+      spawnNote(lane, hitTime);
       state.songNoteIdx++;
     } else {
       break;
     }
   }
+
+  if (state.songNoteIdx >= SONG_CHART.length) {
+    if (usingSongFile) {
+      songAudio.currentTime = 0;
+      songAudio.play().catch(()=>{});
+    }
+    state.songNoteIdx = 0;
+    state.songStartedAt = performance.now();
+  }
 }
 
-function spawnNote(lane, hitTimeSec, isDrumBreak = false) {
+function spawnNote(lane, hitTimeSec) {
   const el = document.createElement('div');
-  el.className = 'note' + (isDrumBreak ? ' drum-break-note' : '');
-  el.dataset.lane = lane;
-  el.textContent = isDrumBreak ? '★' : CONFIG.LANES[lane];
+  el.className = 'note'; el.dataset.lane = lane;
+  el.textContent = CONFIG.LANES[lane];
   el.style.top = `-${CONFIG.NOTE_HEIGHT}px`;
   laneEls[lane].appendChild(el);
-  state.notes.push({ lane, el, y: -CONFIG.NOTE_HEIGHT, hitTimeSec, alive: true, hit: false, isDrumBreak });
+  state.notes.push({ lane, el, y: -CONFIG.NOTE_HEIGHT, hitTimeSec, alive: true, hit: false });
 }
 
 /* ════════════════════════════════════════════════════════
@@ -737,25 +465,18 @@ function updateHUD() {
   streakVal.textContent = state.streak;
   multVal.textContent   = `${mult}×`;
   bestVal.textContent   = Math.max(state.score, state.bestScore);
-
-  // Update progress bar
-  const pct = Math.min(getSongTime() / SONG_DURATION * 100, 100);
-  progressFill.style.width = pct + '%';
 }
 
 /* ════════════════════════════════════════════════════════
    HIT / MISS FEEDBACK
 ════════════════════════════════════════════════════════ */
-function spawnParticles(laneEl, yPx, isDrum) {
-  const colors = isDrum
-    ? ['#ffd700','#ffaa00','#ffe066','#ff8800','#fff']
-    : ['var(--note-d)','var(--note-f)','var(--note-j)','var(--note-k)','#fff'];
-  const count = isDrum ? 16 : 10;
-  for (let i = 0; i < count; i++) {
+function spawnParticles(laneEl, yPx) {
+  const colors = ['var(--note-d)','var(--note-f)','var(--note-j)','var(--note-k)','#fff'];
+  for (let i = 0; i < 10; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
     const angle = Math.random() * Math.PI * 2;
-    const dist  = (isDrum ? 50 : 30) + Math.random() * 40;
+    const dist  = 30 + Math.random() * 40;
     p.style.cssText = `left:${laneEl.offsetWidth/2}px;top:${yPx}px;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;`;
     laneEl.appendChild(p);
     setTimeout(() => p.remove(), 520);
@@ -787,7 +508,7 @@ function triggerHit(note) {
   const yPx    = note.y + CONFIG.NOTE_HEIGHT / 2;
   note.el.classList.add('hit');
   setTimeout(() => note.el.remove(), 280);
-  spawnParticles(laneEl, yPx, note.isDrumBreak);
+  spawnParticles(laneEl, yPx);
   laneEls[note.lane].classList.add('flash-good');
   setTimeout(() => laneEls[note.lane].classList.remove('flash-good'), 100);
 
@@ -796,16 +517,13 @@ function triggerHit(note) {
   if (state.streak > state.bestStreak) state.bestStreak = state.streak;
   const mult = getMultiplier();
   if (mult > state.maxMult) state.maxMult = mult;
-  // Drum break notes worth 3× extra
-  const bonus = note.isDrumBreak ? 3 : 1;
-  state.score += CONFIG.POINTS_PER_HIT * mult * bonus;
+  state.score += CONFIG.POINTS_PER_HIT * mult;
 
-  if (state.streak >= COMBO_REQUIRED && !state.unlockFired) fireUnlock(state.streak);
+  if (state.streak >= COMBO_REQUIRED && !state.unlockFired) {
+    fireUnlock(state.streak);
+  }
 
-  if (note.isDrumBreak) {
-    playSound('drum', note.lane);
-    if (state.streak % 5 === 0) showComboBurst(`🥁 ${state.streak}`);
-  } else if (state.streak > 0 && state.streak % 10 === 0) {
+  if (state.streak > 0 && state.streak % 10 === 0) {
     playSound('combo', note.lane);
     showComboBurst(`${state.streak} COMBO  ${mult}×`);
   } else {
@@ -842,7 +560,8 @@ function showUnlockModal(combo) {
   for (let i = 0; i < 12; i++) {
     const sp = document.createElement('div');
     sp.className = 'modal-spark';
-    const angle = (i/12)*Math.PI*2, r = 160 + Math.random()*60;
+    const angle = (i / 12) * Math.PI * 2;
+    const r = 160 + Math.random() * 60;
     sp.style.cssText = `left:calc(50% + ${Math.cos(angle)*r}px);top:calc(50% + ${Math.sin(angle)*r}px);background:${sparkColors[i%sparkColors.length]};box-shadow:0 0 6px ${sparkColors[i%sparkColors.length]};--sx:${(Math.random()-.5)*30}px;--sy:${(Math.random()-.5)*30}px;animation-delay:${Math.random()}s;`;
     box.appendChild(sp);
   }
@@ -905,36 +624,7 @@ function gameLoop(timestamp) {
     if (note.y > laneHeight + 10) { note.el.remove(); state.notes.splice(i,1); }
   }
 
-  // Update progress bar every frame
-  const pct = Math.min(getSongTime() / SONG_DURATION * 100, 100);
-  progressFill.style.width = pct + '%';
-
   rafId = requestAnimationFrame(gameLoop);
-}
-
-/* ════════════════════════════════════════════════════════
-   COUNTDOWN THEN START
-════════════════════════════════════════════════════════ */
-function runCountdown(callback) {
-  let count = 3;
-  countdownEl.classList.add('show');
-  countdownNum.textContent = count;
-
-  function tick() {
-    count--;
-    if (count <= 0) {
-      countdownEl.classList.remove('show');
-      callback();
-      return;
-    }
-    countdownNum.textContent = count;
-    // re-trigger animation
-    countdownNum.style.animation = 'none';
-    void countdownNum.offsetWidth;
-    countdownNum.style.animation = '';
-    setTimeout(tick, 1000);
-  }
-  setTimeout(tick, 1000);
 }
 
 /* ════════════════════════════════════════════════════════
@@ -950,34 +640,34 @@ function startGame() {
   state.travelTime = (travelPx / CONFIG.NOTE_SPEED) * 1000;
 
   Object.assign(state, {
-    running: false, score: 0, streak: 0, bestStreak: 0, maxMult: 1,
+    running: true, score: 0, streak: 0, bestStreak: 0, maxMult: 1,
     totalHits: 0, notes: [], unlockFired: false, songNoteIdx: 0,
-    drumAlertFired: false,
   });
 
   updateHUD();
   startScreen.classList.add('hidden');
   gameOverScreen.classList.add('hidden');
-  progressFill.style.width = '0%';
 
-  runCountdown(() => {
-    state.running = true;
-
-    if (usingSongFile) {
-      songAudio.currentTime = 0;
-      songAudio.play().then(() => {
-        state.songStartedAt = performance.now() - songAudio.currentTime * 1000;
-      }).catch(() => { state.songStartedAt = performance.now(); });
-      songAudio.onended = () => {
-        if (state.running) endGame();
-      };
-    } else {
+  if (usingSongFile) {
+    songAudio.currentTime = 0;
+    songAudio.play().then(() => {
+      state.songStartedAt = performance.now() - songAudio.currentTime * 1000;
+    }).catch(() => {
       state.songStartedAt = performance.now();
-    }
+    });
+    songAudio.onended = () => {
+      if (state.running) {
+        state.songNoteIdx  = 0;
+        state.songStartedAt = performance.now();
+      }
+    };
+  } else {
+    state.songStartedAt = performance.now();
+    playSynthFallback(audioCtx.currentTime + 0.05);
+  }
 
-    lastFrameTime = performance.now();
-    rafId = requestAnimationFrame(gameLoop);
-  });
+  lastFrameTime = performance.now();
+  rafId = requestAnimationFrame(gameLoop);
 }
 
 function stopGame() {
@@ -990,7 +680,6 @@ function stopGame() {
 
 function quitToStart() {
   stopGame();
-  countdownEl.classList.remove('show');
   document.getElementById('streakModal').classList.remove('show');
   document.querySelectorAll('.modal-spark').forEach(s => s.remove());
   startScreen.classList.remove('hidden');
@@ -1016,10 +705,12 @@ function endGame() {
 ════════════════════════════════════════════════════════ */
 startBtn.addEventListener('click',   startGame);
 restartBtn.addEventListener('click', startGame);
-arcadeBtn.addEventListener('click',  goToArcadeWithUnlock);
+arcadeBtn.addEventListener('click',  () => { goToArcadeWithUnlock(); });
 inGameBackBtn.addEventListener('click', quitToStart);
 
-document.getElementById('modalArcadeBtn').addEventListener('click', goToArcadeWithUnlock);
+document.getElementById('modalArcadeBtn').addEventListener('click', () => {
+  goToArcadeWithUnlock();
+});
 document.getElementById('modalStayBtn').addEventListener('click', () => {
   document.getElementById('streakModal').classList.remove('show');
   document.querySelectorAll('.modal-spark').forEach(s => s.remove());
