@@ -97,6 +97,7 @@
     BULLSEYES &nbsp;&nbsp;<span id="finalBullseyes">0</span> / 5<br>
     ARROWS LEFT &nbsp;&nbsp;<span id="finalArrowsLeft">0</span>
   </div>
+  <div id="unlockBadge" style="display:none;background:linear-gradient(135deg,rgba(57,255,20,0.15),rgba(0,245,255,0.1));border:1.5px solid #39ff14;border-radius:4px;padding:.7rem 1.8rem;margin-bottom:1rem;font-family:var(--display);font-size:1.1rem;letter-spacing:.15em;color:#39ff14;text-shadow:0 0 12px #39ff14;text-align:center;">✅ ARCADE MASTER — HEAD BACK TO HUB!</div>
   <div class="btn-row">
     <button class="btn" id="restartBtn">TRY AGAIN</button>
     <button class="btn-arcade" id="arcadeBtn">← ARCADE HUB</button>
@@ -581,13 +582,25 @@ function startGame(){
   runCountdown(()=>{ gs.running=true; cancelAnimationFrame(animId); animId=requestAnimationFrame(gameLoop); });
 }
 
+function goToArcadeWithUnlock(){
+  const level = sessionStorage.getItem('gj_unlocked') || '1';
+  window.location.href = 'index.html?unlocked=' + level;
+}
+
 function endGame(won){
   gs.running=false; cancelHold(); cancelAnimationFrame(animId);
   const titleEl=document.getElementById('overTitle');
   if(won){
+    // Fire unlock for stage 3 (this is the final game)
+    sessionStorage.setItem('gj_unlocked','3');
     titleEl.textContent='BULLSEYE!';
     titleEl.style.color='var(--accent3)';
     titleEl.style.textShadow='0 0 30px var(--accent3)';
+    // Show unlock badge + highlight arcade button
+    const badge=document.getElementById('unlockBadge');
+    const arcBtn=document.getElementById('arcadeBtn');
+    if(badge){ badge.style.display='block'; }
+    if(arcBtn){ arcBtn.style.borderColor='#39ff14'; arcBtn.style.color='#39ff14'; arcBtn.style.boxShadow='0 0 20px rgba(57,255,20,.4)'; arcBtn.textContent='⚡ BACK TO ARCADE →'; }
   } else {
     titleEl.textContent='OUT OF ARROWS';
     titleEl.style.color='var(--accent2)';
@@ -609,7 +622,7 @@ function quitToStart(){
 
 document.getElementById('startBtn').addEventListener('click',startGame);
 document.getElementById('restartBtn').addEventListener('click',startGame);
-document.getElementById('arcadeBtn').addEventListener('click',()=>window.location.href='index.html');
+document.getElementById('arcadeBtn').addEventListener('click', goToArcadeWithUnlock);
 document.getElementById('inGameBackBtn').addEventListener('click',quitToStart);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&gs.running) quitToStart(); });
 
