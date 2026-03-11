@@ -1,4 +1,3 @@
-# GroupJam
 # 🕹️ GroupJam Arcade
 
 > **Play now:** [abidmohdasif.github.io/GroupJam](https://abidmohdasif.github.io/GroupJam/)
