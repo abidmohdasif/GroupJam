@@ -70,7 +70,6 @@
 </head>
 <body>
 
-<!-- Screens render on top of everything via z-index:100 -->
 <div id="startScreen" class="screen">
   <div class="logo">BULLSEYE</div>
   <div class="subtitle">Aim · Hold · Release</div>
@@ -527,7 +526,8 @@ function endGame(won){
   gs.running=false; cancelHold(); cancelAnimationFrame(animId);
   const titleEl=document.getElementById('overTitle');
   if(won){
-    sessionStorage.setItem('gj_unlocked','3');
+    // ── FIX: set to '4' so index.html progress bar reaches 3/3 (stages = 4-1 = 3) ──
+    sessionStorage.setItem('gj_unlocked','4');
     titleEl.textContent='BULLSEYE!';
     titleEl.style.color='var(--accent3)';
     titleEl.style.textShadow='0 0 30px var(--accent3)';
