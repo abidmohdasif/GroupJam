@@ -1,6 +1,6 @@
 # 🕹️ GroupJam Arcade
 
-> **Play now:** [abidmohdasif.github.io/GroupJam](https://abidmohdasif.github.io/GroupJam/)
+> **Play now:** [https://jdaubman13.github.io/GameJam-Leaderboard-Test/](https://jdaubman13.github.io/GameJam-Leaderboard-Test/)
 
 A consecutive challenge arcade — beat all three stages in one run to claim **Arcade Master**.
 
